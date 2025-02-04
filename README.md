@@ -11,7 +11,7 @@ MVP Predictor is a machine learning project designed to predict the Most Valuabl
 ## Installation
 1. Clone the repository:
     ```sh
-    git clone https://github.com/SamuArg/mvp-predictor.git
+    git clone https://github.com/SamuArg/NBA-MVP-predictor.git
     ```
 2. Navigate to the project directory:
     ```sh
