@@ -2,6 +2,7 @@ from urllib.request import urlopen
 from bs4 import BeautifulSoup
 import time
 import pandas as pd
+import re
 
 class Scrap:
     def __init__(self, first_year, last_year):
@@ -64,7 +65,9 @@ class Scrap:
                 for i in range(len(rows))]
         for i in range(len(rows_data)):
                 rows_data[i].insert(0, year)
-                rows_data[i].insert(1, teams[i][0].replace("*", ""))
+                clean_team = teams[i][0].replace("*", "")
+                clean_team = re.sub(r'\(\d*\)', "", clean_team).strip()
+                rows_data[i].insert(1, clean_team)
         return rows_data, headers
     
     def scrap_advanced(self) -> pd.DataFrame:

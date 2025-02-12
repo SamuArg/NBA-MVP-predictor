@@ -84,6 +84,7 @@ class Processed:
         return self.processed
     
     def remove_bad_players(self) -> pd.DataFrame:
+        self.processed = self.processed.dropna().astype({"PER": float, "W/L%": float, "MP": float})
         self.processed = self.processed[self.processed["PER"] > 18]
         self.processed = self.processed[self.processed["W/L%"] > 0.5]
         self.processed = self.processed[self.processed["MP"] > 30]
@@ -91,10 +92,15 @@ class Processed:
     
     def scale(self) -> pd.DataFrame:
         scaler = StandardScaler()
-        print(self.processed.head(5))
-        processed = self.processed.groupby('Year').apply(lambda x: pd.DataFrame(scaler.fit_transform(x.drop(columns=["Player", "Year", "Team"])), columns=x.columns.drop(["Player", "Year", "Team"])))
-        processed = processed.reset_index(drop=True)
-        processed[["Player", "Year", "Team"]] = self.processed[["Player", "Year", "Team"]].reset_index(drop=True)
+        non_numeric_cols = ["Player", "Year", "Team"]
+        cols_to_convert = [col for col in self.processed.columns if col not in non_numeric_cols]
+        for col in cols_to_convert:
+            self.processed[col] = pd.to_numeric(self.processed[col], errors='coerce')
+        processed_numeric = self.processed.groupby('Year').apply(lambda x: pd.DataFrame(
+            scaler.fit_transform(x.drop(columns=non_numeric_cols)), 
+            columns=x.columns.drop(non_numeric_cols)
+        )).reset_index(drop=True)
+        processed = pd.concat([processed_numeric, self.processed[non_numeric_cols].reset_index(drop=True)], axis=1)
         self.processed = processed
         return self.processed
     
