@@ -83,25 +83,27 @@ class Processed:
         self.processed.fillna(0, inplace=True)
         return self.processed
     
-    def remove_bad_players(self) -> pd.DataFrame:
-        self.processed = self.processed.dropna().astype({"PER": float, "W/L%": float, "MP": float})
-        self.processed = self.processed[self.processed["PER"] > 18]
-        self.processed = self.processed[self.processed["W/L%"] > 0.5]
-        self.processed = self.processed[self.processed["MP"] > 30]
-        return self.processed
-    
     def scale(self) -> pd.DataFrame:
         scaler = StandardScaler()
         non_numeric_cols = ["Player", "Year", "Team"]
         cols_to_convert = [col for col in self.processed.columns if col not in non_numeric_cols]
         for col in cols_to_convert:
-            self.processed[col] = pd.to_numeric(self.processed[col], errors='coerce')
-        processed_numeric = self.processed.groupby('Year').apply(lambda x: pd.DataFrame(
-            scaler.fit_transform(x.drop(columns=non_numeric_cols)), 
-            columns=x.columns.drop(non_numeric_cols)
-        )).reset_index(drop=True)
-        processed = pd.concat([processed_numeric, self.processed[non_numeric_cols].reset_index(drop=True)], axis=1)
+            self.processed.loc[:, col] = pd.to_numeric(self.processed[col], errors='coerce')
+        thresholds = {"W/L%": 0.5, "MP": 30.0}
+        scaler.fit(self.processed[cols_to_convert])
+        processed_numeric = pd.DataFrame(
+            scaler.transform(self.processed[cols_to_convert]), 
+            index=self.processed.index, 
+            columns=cols_to_convert
+        )
+        scaled_thresholds = {key: scaler.transform([[thresholds[key]] * len(cols_to_convert)])[0][cols_to_convert.index(key)] for key in thresholds}
+        processed = pd.concat([processed_numeric, self.processed[non_numeric_cols]], axis=1)
         self.processed = processed
+        mask = (
+            (self.processed["W/L%"] > scaled_thresholds["W/L%"]) & 
+            (self.processed["MP"] > scaled_thresholds["MP"])
+        )
+        self.processed = self.processed[mask].reset_index()
         return self.processed
     
     def process_with_mvps(self) -> pd.DataFrame:
@@ -111,7 +113,6 @@ class Processed:
         self.clean_mvps()
         self.merge_stats()
         self.merge_stats_mvps()
-        self.remove_bad_players()
         self.scale()
         return self.processed
     
@@ -120,6 +121,5 @@ class Processed:
         self.clean_stats_standings()
         self.update_team_names()
         self.merge_stats()
-        self.remove_bad_players()
         self.scale()
         return self.processed

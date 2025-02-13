@@ -12,15 +12,17 @@ class Predict:
     def predict(self) -> pd.DataFrame:
         model = load('../models/model.joblib')
         X = self.data.drop(columns=["Year", "Player", "Team"])
+        X = X.fillna(0.0)
         predictions = model.predict(X)
         preds = self.data.copy()
-        preds["Prediction"] = predictions
+        preds.loc[:, "Prediction"] = predictions
         preds = preds[["Player", "Prediction"]].sort_values(by="Prediction", ascending=False)[0:10]
         return preds
 
     def predict_proba(self) -> pd.DataFrame:
         model = load('../models/model.joblib')
         X = self.data.drop(columns=["Year", "Player", "Team"])
+        X = X.fillna(0.0)
         predictions = model.predict(X)
         scaler = MinMaxScaler()
         predictions = scaler.fit_transform(predictions.reshape(-1, 1)).flatten()
@@ -28,7 +30,7 @@ class Predict:
         top_10_predictions = predictions[top_10_indices]
         top_10_predictions = top_10_predictions / top_10_predictions.sum() * 100
         proba = self.data.copy()
-        proba["Proba"] = 0.0
+        proba.loc[:, "Proba"] = 0.0
         proba.loc[top_10_indices, "Proba"] = top_10_predictions
         proba = proba[["Player", "Proba"]].sort_values(by="Proba", ascending=False)[0:10]
         return proba
