@@ -1,0 +1,14 @@
+name: Daily Job Trigger
+
+on:
+  schedule:
+    - cron: '0 12 * * *'
+  workflow_dispatch:
+
+jobs:
+  run_daily_job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger daily prediction endpoint
+        run: |
+          curl -X POST -H "Authorization: Bearer ${{ secrets.API_KEY }}" ${{ secrets.API_URL }}/daily_predictions

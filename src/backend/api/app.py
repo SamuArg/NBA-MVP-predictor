@@ -7,7 +7,6 @@ if project_root not in sys.path:
     sys.path.append(project_root)
 from scripts.dailyPredictions import get_prediction_by_date
 from scripts.dailyPredictions import main as daily_predictions
-from apscheduler.schedulers.background import BackgroundScheduler
 
 app = Flask(__name__)
 
@@ -19,12 +18,10 @@ def get_mvps():
 def get_mvps_date(date):
     return jsonify(get_prediction_by_date(date))
 
-def main():
-    scheduler = BackgroundScheduler()
-    scheduler.add_job(daily_predictions, 'interval', days=1, start_date='2025-03-12 12:00:00', name='daily_prediction_job')
-    scheduler.start()
+@app.route("/daily_predictions", methods=["POST"])
+def make_daily_predictions():
+    daily_predictions()
     
 
 if __name__ == "__main__":
-    main()
     app.run()
