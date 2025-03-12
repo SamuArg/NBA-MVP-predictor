@@ -14,6 +14,10 @@ app = Flask(__name__)
 @app.route("/mvps", methods=["GET"])
 def get_mvps():
     return jsonify(get_prediction_by_date(datetime.date.today().isoformat()))
+
+@app.route("/mvps/<date>", methods=["GET"])
+def get_mvps_date(date):
+    return jsonify(get_prediction_by_date(date))
     
 
 if __name__ == "__main__":

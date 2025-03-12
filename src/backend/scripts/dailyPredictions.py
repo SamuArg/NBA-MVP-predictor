@@ -39,7 +39,7 @@ def get_prediction_by_date(date):
     result = collection.find_one({"date": date})
     if result:
         return result["predictions"]
-    return None
+    return "Predictions for this date is not available."
 
 def main():
     predictions = make_prediction()
