@@ -9,7 +9,7 @@ class Scrap:
         self.first_year = first_year
         self.last_year = last_year
     
-    def scrap_mvps(self) -> pd.DataFrame:
+    def scrap_mvps(self, save=False) -> pd.DataFrame:
         all_rows = []
         for year in range(self.first_year, self.last_year + 1):
             url = f"https://www.basketball-reference.com/awards/awards_{year}.html"
@@ -27,11 +27,12 @@ class Scrap:
             print("MVPs for Season", year, "done")
             time.sleep(5)
         mvps = pd.DataFrame(all_rows, columns = headers)
-        mvps.to_csv(f"../data/raw/{self.first_year}_{self.last_year}_mvps.csv", index=False)
+        if save:
+            mvps.to_csv(f"../data/raw/{self.first_year}_{self.last_year}_mvps.csv", index=False)
         return mvps
         
     
-    def scrap_standings(self) -> pd.DataFrame:
+    def scrap_standings(self, save=False) -> pd.DataFrame:
         all_rows = pd.DataFrame()
         for year in range(self.first_year, self.last_year + 1):
             url = f"https://www.basketball-reference.com/leagues/NBA_{year}_standings.html#expanded_standings"
@@ -50,7 +51,8 @@ class Scrap:
             all_rows = pd.concat([all_rows, league])
             print("Standing for season", year, "done")
             time.sleep(5)
-        all_rows.to_csv(f"../data/raw/{self.first_year}_{self.last_year}_standings.csv", index=False)
+        if save:
+            all_rows.to_csv(f"../data/raw/{self.first_year}_{self.last_year}_standings.csv", index=False)
         return all_rows
         
     
@@ -70,7 +72,7 @@ class Scrap:
                 rows_data[i].insert(1, clean_team)
         return rows_data, headers
     
-    def scrap_advanced(self) -> pd.DataFrame:
+    def scrap_advanced(self, save=False) -> pd.DataFrame:
         all_rows = []
         for year in range(self.first_year, self.last_year + 1):
             url = f"https://www.basketball-reference.com/leagues/NBA_{year}_advanced.html"
@@ -88,10 +90,11 @@ class Scrap:
             print("Advanced for season", year, "done")
             time.sleep(5)
         advanced = pd.DataFrame(all_rows, columns = headers)
-        advanced.to_csv(f"../data/raw/{self.first_year}_{self.last_year}_advanced.csv", index=False)
+        if save:
+            advanced.to_csv(f"../data/raw/{self.first_year}_{self.last_year}_advanced.csv", index=False)
         return advanced
         
-    def scrap_per_game(self) -> pd.DataFrame:
+    def scrap_per_game(self, save=False) -> pd.DataFrame:
         all_rows = []
         for year in range(self.first_year, self.last_year + 1):
             url = f"https://www.basketball-reference.com/leagues/NBA_{year}_per_game.html"
@@ -109,5 +112,6 @@ class Scrap:
             print("Per game for season", year, "done")
             time.sleep(5)
         per_game = pd.DataFrame(all_rows, columns = headers)
-        per_game.to_csv(f"../data/raw/{self.first_year}_{self.last_year}_per_game.csv", index=False)
+        if save:
+            per_game.to_csv(f"../data/raw/{self.first_year}_{self.last_year}_per_game.csv", index=False)
         return per_game
