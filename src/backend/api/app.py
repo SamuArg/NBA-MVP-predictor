@@ -23,8 +23,8 @@ def main():
     scheduler = BackgroundScheduler()
     scheduler.add_job(daily_predictions, 'interval', days=1, start_date='2025-03-12 12:00:00', name='daily_prediction_job')
     scheduler.start()
-    app.run()
     
 
 if __name__ == "__main__":
     main()
+    app.run()
