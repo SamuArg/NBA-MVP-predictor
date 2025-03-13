@@ -5,7 +5,7 @@ import sys
 project_root = os.path.abspath(os.path.join(os.getcwd(), '..'))
 if project_root not in sys.path:
     sys.path.append(project_root)
-from scripts.dailyPredictions import get_prediction_by_date
+from scripts.dailyPredictions import get_prediction_by_date, get_latest_prediction
 from scripts.dailyPredictions import main as daily_predictions
 from dotenv import load_dotenv
 
@@ -17,7 +17,7 @@ app = Flask(__name__)
 
 @app.route("/mvps", methods=["GET"])
 def get_mvps():
-    return jsonify(get_prediction_by_date(datetime.date.today().isoformat()))
+    return jsonify(get_latest_prediction())
 
 @app.route("/mvps/<date>", methods=["GET"])
 def get_mvps_date(date):
