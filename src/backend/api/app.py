@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request
-import datetime
+from flask_cors import CORS
 import os
 import sys
 project_root = os.path.abspath(os.path.join(os.getcwd(), '..'))
@@ -13,6 +13,8 @@ load_dotenv()
 API_KEY = os.getenv("API_KEY")
 
 app = Flask(__name__)
+
+CORS(app)  # Allow all origins (for development)
 
 @app.route("/mvps", methods=["GET"])
 def get_mvps():
