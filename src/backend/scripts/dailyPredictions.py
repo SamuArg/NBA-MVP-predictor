@@ -12,6 +12,7 @@ MONGO_URI = os.getenv("MONGOURI")
 client = MongoClient(MONGO_URI)
 db = client.get_database("predictions")
 collection = db.predictions
+CURRENT_SEASON = 2025
 
 def make_prediction():
     predict = Predict(2025)
@@ -33,8 +34,8 @@ def save_prediction(predictions):
         return
     
     collection.update_one(
-        {"date": today},
-        {"$set": {"predictions": predictions, "date": today}},
+        {"date": today, "season": CURRENT_SEASON},
+        {"$set": {"predictions": predictions, "date": today, "season": CURRENT_SEASON}},
         upsert=True
     )
     print(f"Prediction for {today} saved.")
@@ -53,6 +54,16 @@ def get_latest_prediction():
     if result:
         return result["predictions"]
     return "No predictions available."
+
+def get_prediction_by_season(season):
+    """Retrieve all predictions for a given season, sorted by date (oldest to newest)."""
+    results = collection.find({"season": season}).sort("date", 1)
+    predictions = [{ "date": result["date"], "predictions": result["predictions"] } for result in results]
+    
+    if predictions:
+        return predictions
+    return f"No predictions available for Season {season}."
+    
 
 def main():
     predictions = make_prediction()

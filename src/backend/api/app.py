@@ -5,7 +5,7 @@ import sys
 project_root = os.path.abspath(os.path.join(os.getcwd(), '..'))
 if project_root not in sys.path:
     sys.path.append(project_root)
-from scripts.dailyPredictions import get_prediction_by_date, get_latest_prediction
+from scripts.dailyPredictions import get_prediction_by_date, get_latest_prediction, get_prediction_by_season
 from scripts.dailyPredictions import main as daily_predictions
 from dotenv import load_dotenv
 
@@ -29,6 +29,10 @@ def make_daily_predictions():
     if api_key != f"Bearer {API_KEY}":
         raise PermissionError("Invalid API key")
     daily_predictions()
+    
+@app.route("/mvps/<season>", methods=["GET"])
+def get_mvps_season(season):
+    return jsonify(get_prediction_by_season(season))
     
 
 if __name__ == "__main__":
