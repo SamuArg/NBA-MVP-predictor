@@ -10,7 +10,7 @@ class Predict:
         self.data = self.get_data(year)
 
     def predict(self) -> pd.DataFrame:
-        model = load('../models/model.joblib')
+        model = load('models/model.joblib')
         X = self.data.drop(columns=["Year", "Player", "Team"])
         X = X.fillna(0.0)
         predictions = model.predict(X)
@@ -20,7 +20,7 @@ class Predict:
         return preds
 
     def predict_proba(self) -> pd.DataFrame:
-        model = load('../models/model.joblib')
+        model = load('models/model.joblib')
         X = self.data.drop(columns=["Year", "Player", "Team"])
         X = X.fillna(0.0)
         predictions = model.predict(X)

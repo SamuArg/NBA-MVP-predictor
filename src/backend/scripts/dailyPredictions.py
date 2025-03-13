@@ -3,12 +3,7 @@ import datetime
 from dotenv import load_dotenv
 import os
 from scripts.Predict import Predict
-from flask import request
 from dotenv import load_dotenv
-
-load_dotenv()
-
-API_KEY = os.getenv("API_KEY")
 
 load_dotenv()
 
@@ -29,10 +24,6 @@ def save_prediction(predictions):
     """Store predictions with the current date"""
     if not all(isinstance(p, dict) and 'player' in p and 'probability' in p for p in predictions):
         raise ValueError("Each prediction must be a dictionary with 'player' and 'probability' keys")
-    
-    api_key = request.headers.get('Authorization')
-    if api_key != f"Bearer {API_KEY}":
-        raise PermissionError("Invalid API key")
     
     today = datetime.date.today().isoformat()
 
@@ -55,6 +46,13 @@ def get_prediction_by_date(date):
     if result:
         return result["predictions"]
     return "Predictions for this date is not available."
+
+def get_latest_prediction():
+    """Retrieve the latest prediction"""
+    result = collection.find_one(sort=[("date", -1)])
+    if result:
+        return result["predictions"]
+    return "No predictions available."
 
 def main():
     predictions = make_prediction()
