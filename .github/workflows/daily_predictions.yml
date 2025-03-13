@@ -1,14 +1,31 @@
-name: Daily Job Trigger
+name: Daily MVP Prediction
 
 on:
   schedule:
-    - cron: '0 12 * * *'
+    - cron: "0 17 * * *"
   workflow_dispatch:
 
 jobs:
-  run_daily_job:
+  run-prediction:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Trigger daily prediction endpoint
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.13"
+
+      - name: Install Dependencies
         run: |
-          curl -X POST -H "Authorization: Bearer ${{ secrets.API_KEY }}" ${{ secrets.API_URL }}/daily_predictions
+          cd src/backend
+          pip install -r requirements.txt
+
+      - name: Run Prediction Script
+        env:
+          MONGOURI: ${{ secrets.MONGOURI }}
+        run: |
+          cd src/backend
+          python -m scripts.dailyPredictions
