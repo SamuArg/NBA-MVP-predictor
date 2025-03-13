@@ -13,14 +13,16 @@ MVP Predictor is a machine learning project designed to predict the Most Valuabl
     ```sh
     git clone https://github.com/SamuArg/NBA-MVP-predictor.git
     ```
-2. Navigate to the project directory:
+2. Navigate to the backend directory:
     ```sh
-    cd mvp-predictor
+    cd mvp-predictor/src/backend
     ```
 3. Install the required dependencies:
     ```sh
     pip install -r requirements.txt
     ```
+4. Create a .env with those this key : MONGOURI and write your own MONGO URI.
+5. Run the wsgi.py file to start the backend.
 
 ## Features to add
 - Get predictions for current season
