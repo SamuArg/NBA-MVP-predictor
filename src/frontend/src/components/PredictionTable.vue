@@ -22,13 +22,21 @@ import { getPredictionsSeason } from "../api/mvps";
 
 use([GridComponent, TooltipComponent, LegendComponent, LineChart, CanvasRenderer]);
 
+type TooltipItem = {
+  seriesName: string;
+  value: number;
+  marker: string;
+  name: string;
+  dataIndex: number;
+};
+
+
 export default defineComponent({
   components: { VChart },
 
   setup() {
     const loading = ref(true);
     const chartOptions = ref({});
-    const mvpData = ref<MVPResponse[] | null>(null);
 
     const transformData = (data: MVPResponse[]) => {
       const dates = data.map(entry => entry.date);
@@ -39,7 +47,7 @@ export default defineComponent({
         type: "line",
         data: data.map(entry => {
           const found = entry.predictions.find(p => p.player === player);
-          return found ? found.probability : null;
+          return found ? found.probability : 0;
         })
       }));
 
@@ -53,12 +61,20 @@ export default defineComponent({
           const { dates, series, players } = transformData(rawData);
 
           chartOptions.value = {
-            tooltip: { trigger: "axis" },
+            tooltip: { trigger: "axis", 
+            formatter: (params: TooltipItem[] ) => {
+              const sortedParams = params.sort((a: any, b: any) => b.value - a.value);
+
+              return sortedParams
+                .map(item => `${item.marker} ${item.seriesName}: ${item.value.toFixed(2)}`)
+                .join("<br>");
+            }
+            },
             legend: { data: players,
               textStyle: {color: 'white'}
              },
             xAxis: { type: "category", data: dates },
-            yAxis: { type: "value", min: 0, max: 100 },
+            yAxis: { type: "value", min: 0},
             series
           };
         }
