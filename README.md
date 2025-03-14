@@ -9,7 +9,7 @@ MVP Predictor is a machine learning project designed to predict the Most Valuabl
 - Model training and evaluation
 
 ## Live demo
-You can see a live demo of the project [here]("https://nba-mvp-predictions.netlify.app")
+You can see a live demo of the project [here](https://nba-mvp-predictions.netlify.app)
 
 ## Installation
 1. Clone the repository:
