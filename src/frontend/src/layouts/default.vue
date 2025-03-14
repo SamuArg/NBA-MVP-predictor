@@ -1,9 +1,8 @@
 <template>
   <v-main>
     <router-view />
+    <PredictionTable/>
   </v-main>
-
-  <AppFooter />
 </template>
 
 <script lang="ts" setup>
