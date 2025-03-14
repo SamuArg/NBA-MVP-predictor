@@ -54,7 +54,9 @@ export default defineComponent({
 
           chartOptions.value = {
             tooltip: { trigger: "axis" },
-            legend: { data: players },
+            legend: { data: players,
+              textStyle: {color: 'white'}
+             },
             xAxis: { type: "category", data: dates },
             yAxis: { type: "value", min: 0, max: 100 },
             series
