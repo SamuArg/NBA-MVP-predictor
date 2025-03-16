@@ -2,6 +2,7 @@
   <v-main>
     <router-view />
     <PredictionTable/>
+    <PlayerLine/>
   </v-main>
 </template>
 
