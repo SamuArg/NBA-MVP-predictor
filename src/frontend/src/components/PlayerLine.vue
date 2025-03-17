@@ -1,8 +1,8 @@
 <template>
   <v-container>
     <v-list>
-      <v-list-subheader v-if="date"
-        >MVP probabilities for {{ date }}</v-list-subheader
+      <v-list-subheader v-if="selectedDate"
+        >MVP probabilities for {{ selectedDate }}</v-list-subheader
       >
       <v-list-subheader v-else>Latest MVP probabilities</v-list-subheader>
       <v-list-item v-for="(player, index) in players" :key="index">
@@ -17,6 +17,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, onMounted, watch, type Ref } from "vue";
+import { useAppStore } from "../stores/app";
 import {
   getLatestPredictions,
   getPredictionsDate,
@@ -24,14 +25,10 @@ import {
 } from "../api/mvps";
 
 export default defineComponent({
-  props: {
-    date: {
-      type: String,
-      default: "",
-    },
-  },
-  setup(props) {
+  setup() {
     const players: Ref<Prediction[]> = ref([]);
+    const store = useAppStore();
+    const selectedDate = computed(() => store.selectedDate);
 
     const fetchPredictions = async (date: string) => {
       try {
@@ -43,27 +40,28 @@ export default defineComponent({
         console.error("Error fetching MVP probabilities:", error);
       }
     };
+
     onMounted(async () => {
-      if (props.date) {
-        await fetchPredictions(props.date);
-      } else {
-        const data = await getLatestPredictions();
-        if (data) {
-          players.value = data;
-        }
+      const data = await getLatestPredictions();
+      if (data) {
+        players.value = data;
       }
     });
+
     watch(
-      () => props.date,
+      selectedDate,
       (newDate) => {
         if (newDate) {
           fetchPredictions(newDate);
+        } else {
+          getLatestPredictions().then(data => {
+            if (data) players.value = data;
+          });
         }
-      },
-      { immediate: true }
+      }
     );
 
-    return { players };
+    return { players, selectedDate };
   },
 });
 </script>

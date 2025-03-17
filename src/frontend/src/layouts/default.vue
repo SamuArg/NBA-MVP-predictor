@@ -1,8 +1,8 @@
 <template>
   <v-main>
     <router-view />
-    <PredictionTable/>
-    <PlayerLine/>
+    <PredictionTable />
+    <PlayerLine />
   </v-main>
 </template>
 
