@@ -8,7 +8,7 @@
         Latest MVP probabilities
       </v-list-subheader>
       <v-list-item v-for="(player, index) in players" :key="index">
-        <v-list-item-title>{{ player.player }}</v-list-item-title>
+        <v-list-item-title>{{index + 1}} - {{ player.player }}</v-list-item-title>
         <v-list-item-subtitle>
           Probability: {{ player.probability.toFixed(2) }}%
         </v-list-item-subtitle>
