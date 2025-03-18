@@ -4,7 +4,6 @@ import { getPredictionsSeason } from "@/api/mvps";
 import { useAppStore } from "@/stores/app";
 
 export function useMvpChart() {
-  const loading = ref(true);
   const chartOptions = ref({});
   const store = useAppStore();
 
@@ -56,10 +55,10 @@ export function useMvpChart() {
           series,
         };
       }
-      loading.value = false;
+      store.setLoading(false);
     } catch (error) {
       console.error("Error fetching MVP probabilities:", error);
-      loading.value = false;
+      store.setLoading(false);
     }
   });
 
@@ -69,5 +68,5 @@ export function useMvpChart() {
     }
   };
 
-  return { loading, chartOptions, onChartClick };
+  return { chartOptions, onChartClick };
 }

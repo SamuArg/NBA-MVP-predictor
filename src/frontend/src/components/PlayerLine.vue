@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <v-list>
+    <v-list v-if="!loading">
       <v-list-subheader v-if="selectedDate">
         MVP probabilities for {{ selectedDate }}
       </v-list-subheader>

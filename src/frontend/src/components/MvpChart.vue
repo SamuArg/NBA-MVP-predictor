@@ -42,8 +42,7 @@ echarts.use([
 export default defineComponent({
   components: { VChart },
   setup() {
-    const { loading, chartOptions, onChartClick } = useMvpChart();
-    return { loading, chartOptions, onChartClick };
+    return useMvpChart();
   },
 });
 </script>

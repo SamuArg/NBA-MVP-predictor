@@ -6,6 +6,7 @@ export function useMvpPredictions() {
   const players: Ref<Prediction[]> = ref([]);
   const store = useAppStore();
   const selectedDate = computed(() => store.selectedDate);
+  const loading = computed(() => store.loading);
 
   const fetchPredictions = async (date: string) => {
     try {
@@ -31,5 +32,5 @@ export function useMvpPredictions() {
     }
   });
 
-  return { players, selectedDate };
+  return { loading, players, selectedDate };
 }
