@@ -9,24 +9,26 @@ export function useMvpChart() {
   const loading = computed(()=> store.loading);
 
   const transformData = (data: MVPResponse[]) => {
-    const dates = data.map((entry) => entry.date);
-    const players = [
-      ...new Set(
-        data.flatMap((entry) => entry.predictions.map((p) => p.player))
-      ),
-    ];
+  const dates = data.map((entry) => entry.date);
+  const lastDayData = data[data.length - 1];
+  if (!lastDayData) return { dates, series: [], players: [] };
 
-    const series = players.map((player) => ({
-      name: player,
-      type: "line",
-      data: data.map((entry) => {
-        const found = entry.predictions.find((p) => p.player === player);
-        return found ? found.probability : 0;
-      }),
-    }));
+  const topPlayers = lastDayData.predictions
+    .sort((a, b) => b.probability - a.probability)
+    .slice(0, 10)
+    .map((p) => p.player);
 
-    return { dates, series, players };
-  };
+  const series = topPlayers.map((player) => ({
+    name: player,
+    type: "line",
+    data: data.map((entry) => {
+      const found = entry.predictions.find((p) => p.player === player);
+      return found ? found.probability : 0;
+    }),
+  }));
+
+  return { dates, series, players: topPlayers };
+};
 
   onMounted(async () => {
     try {
