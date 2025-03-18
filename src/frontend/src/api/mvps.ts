@@ -1,6 +1,7 @@
 export interface Prediction {
   player: string;
   probability: number;
+  team: string;
 }
 
 export interface MVPResponse {
@@ -39,8 +40,7 @@ export const getPredictionsDate = async (
     if (!response.ok) {
       throw new Error(`API request failed with status ${response.status}`);
     }
-    const data: Prediction[] = await response.json();
-    return data;
+    return await response.json();
   } catch (error) {
     console.error("Error fetching MVP probabilities:", error);
     return null;
@@ -53,8 +53,7 @@ export const getLatestPredictions = async (): Promise<Prediction[] | null> => {
     if (!response.ok) {
       throw new Error(`API request failed with status ${response.status}`);
     }
-    const data: Prediction[] = await response.json();
-    return data;
+    return await response.json();
   } catch (error) {
     console.error("Error fetching MVP probabilities:", error);
     return null;
