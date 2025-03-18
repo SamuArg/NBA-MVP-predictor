@@ -16,7 +16,7 @@ class Predict:
         predictions = model.predict(X)
         preds = self.data.copy()
         preds.loc[:, "Prediction"] = predictions
-        preds = preds[["Player", "Prediction"]].sort_values(by="Prediction", ascending=False)[0:10]
+        preds = preds[["Player", "Prediction", "Team"]].sort_values(by="Prediction", ascending=False)[0:10]
         return preds
 
     def predict_proba(self) -> pd.DataFrame:
@@ -32,7 +32,7 @@ class Predict:
         proba = self.data.copy()
         proba.loc[:, "Proba"] = 0.0
         proba.loc[top_10_indices, "Proba"] = top_10_predictions
-        proba = proba[["Player", "Proba"]].sort_values(by="Proba", ascending=False)[0:10]
+        proba = proba[["Player", "Proba", "Team"]].sort_values(by="Proba", ascending=False)[0:10]
         return proba
 
     def get_data(self, year=2025) -> pd.DataFrame:

@@ -17,7 +17,8 @@ CURRENT_SEASON = 2025
 def make_prediction():
     predict = Predict(2025)
     data = predict.predict_proba()
-    predictions = [{"player": data['Player'][key], "probability": float(data['Proba'][key])} for key in data['Player'].keys()]
+    predictions = [{"player": data['Player'][key], "probability": float(data['Proba'][key]), "team": data['Team'][key]} for key in data['Player'].keys()]
+    print(predictions)
     return predictions
 
 
