@@ -6,6 +6,7 @@ import { useAppStore } from "@/stores/app";
 export function useMvpChart() {
   const chartOptions = ref({});
   const store = useAppStore();
+  const loading = computed(()=> store.loading);
 
   const transformData = (data: MVPResponse[]) => {
     const dates = data.map((entry) => entry.date);
@@ -68,5 +69,5 @@ export function useMvpChart() {
     }
   };
 
-  return { chartOptions, onChartClick };
+  return { loading, chartOptions, onChartClick };
 }
