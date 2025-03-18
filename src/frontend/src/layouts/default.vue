@@ -1,7 +1,7 @@
 <template>
   <v-main>
     <router-view />
-    <PredictionTable />
+    <MvpChart />
     <PlayerLine />
   </v-main>
 </template>
