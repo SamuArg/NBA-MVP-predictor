@@ -11,7 +11,7 @@ class Predict:
 
     def predict(self) -> pd.DataFrame:
         model = load('models/model.joblib')
-        X = self.data.drop(columns=["Year", "Player", "Team"])
+        X = self.data.drop(columns=["Year", "Player", "Team", "index"])
         X = X.fillna(0.0)
         predictions = model.predict(X)
         preds = self.data.copy()
@@ -21,7 +21,7 @@ class Predict:
 
     def predict_proba(self) -> pd.DataFrame:
         model = load('models/model.joblib')
-        X = self.data.drop(columns=["Year", "Player", "Team"])
+        X = self.data.drop(columns=["Year", "Player", "Team", "index"])
         X = X.fillna(0.0)
         predictions = model.predict(X)
         scaler = MinMaxScaler()
