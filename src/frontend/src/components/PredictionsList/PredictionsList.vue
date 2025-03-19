@@ -11,6 +11,6 @@
 </template>
 
 <script lang="ts" setup>
-import { useMvpPredictions } from "@/composables/useMvpPredictions";
+import { useMvpPredictions } from "@/components/PredictionsList/useMvpPredictions";
 const { players, loading, selectedDate } = useMvpPredictions();
 </script>

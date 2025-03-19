@@ -17,7 +17,7 @@
 
 <script lang="ts" setup>
 import VChart from "vue-echarts";
-import { useMvpChart } from "@/composables/useMvpChart";
+import { useMvpChart } from "@/components/MvpChart/useMvpChart";
 import * as echarts from "echarts/core";
 import { CanvasRenderer } from "echarts/renderers";
 import { LineChart } from "echarts/charts";
