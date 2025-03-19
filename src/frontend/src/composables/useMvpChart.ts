@@ -6,29 +6,29 @@ import { useAppStore } from "@/stores/app";
 export function useMvpChart() {
   const chartOptions = ref({});
   const store = useAppStore();
-  const loading = computed(()=> store.loading);
+  const loading = computed(() => store.loading);
 
   const transformData = (data: MVPResponse[]) => {
-  const dates = data.map((entry) => entry.date);
-  const lastDayData = data[data.length - 1];
-  if (!lastDayData) return { dates, series: [], players: [] };
+    const dates = data.map((entry) => entry.date);
+    const lastDayData = data[data.length - 1];
+    if (!lastDayData) return { dates, series: [], players: [] };
 
-  const topPlayers = lastDayData.predictions
-    .sort((a, b) => b.probability - a.probability)
-    .slice(0, 10)
-    .map((p) => p.player);
+    const topPlayers = lastDayData.predictions
+      .sort((a, b) => b.probability - a.probability)
+      .slice(0, 10)
+      .map((p) => p.player);
 
-  const series = topPlayers.map((player) => ({
-    name: player,
-    type: "line",
-    data: data.map((entry) => {
-      const found = entry.predictions.find((p) => p.player === player);
-      return found ? found.probability : 0;
-    }),
-  }));
+    const series = topPlayers.map((player) => ({
+      name: player,
+      type: "line",
+      data: data.map((entry) => {
+        const found = entry.predictions.find((p) => p.player === player);
+        return found ? found.probability : 0;
+      }),
+    }));
 
-  return { dates, series, players: topPlayers };
-};
+    return { dates, series, players: topPlayers };
+  };
 
   onMounted(async () => {
     try {
@@ -43,7 +43,7 @@ export function useMvpChart() {
                 .sort((a, b) => b.value - a.value)
                 .map(
                   (item) =>
-                    `${item.marker} ${item.seriesName}: ${item.value.toFixed(2)}`
+                    `${item.marker} ${item.seriesName}: ${item.value.toFixed(2)}`,
                 )
                 .join("<br>"),
           },

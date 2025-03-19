@@ -1,11 +1,10 @@
 <template>
   <v-main>
     <router-view />
-    <MvpChart />
-    <PlayerLine />
+    <Main />
   </v-main>
 </template>
 
 <script lang="ts" setup>
-  //
+//
 </script>

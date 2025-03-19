@@ -10,11 +10,11 @@ export interface MVPResponse {
 }
 
 export const getPredictionsSeason = async (
-  season: string
+  season: string,
 ): Promise<MVPResponse[] | null> => {
   try {
     const response = await fetch(
-      `https://nba-mvp-predictor.onrender.com/mvps?season=${season}`
+      `https://nba-mvp-predictor.onrender.com/mvps?season=${season}`,
     );
 
     if (!response.ok) {
@@ -30,11 +30,11 @@ export const getPredictionsSeason = async (
 };
 
 export const getPredictionsDate = async (
-  date: string
+  date: string,
 ): Promise<Prediction[] | null> => {
   try {
     const response = await fetch(
-      `https://nba-mvp-predictor.onrender.com/mvps?date=${date}`
+      `https://nba-mvp-predictor.onrender.com/mvps?date=${date}`,
     );
 
     if (!response.ok) {

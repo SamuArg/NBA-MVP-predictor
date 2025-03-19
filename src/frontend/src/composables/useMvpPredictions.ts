@@ -1,6 +1,10 @@
 import { ref, watch, onMounted, computed, type Ref } from "vue";
 import { useAppStore } from "@/stores/app";
-import { getLatestPredictions, getPredictionsDate, type Prediction } from "@/api/mvps";
+import {
+  getLatestPredictions,
+  getPredictionsDate,
+  type Prediction,
+} from "@/api/mvps";
 
 export function useMvpPredictions() {
   const players: Ref<Prediction[]> = ref([]);

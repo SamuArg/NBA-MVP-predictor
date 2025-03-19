@@ -9,7 +9,8 @@ declare module 'vue' {
   export interface GlobalComponents {
     Main: typeof import('./components/Main.vue')['default']
     MvpChart: typeof import('./components/MvpChart.vue')['default']
-    PlayerLine: typeof import('./components/PlayerLine.vue')['default']
+    PlayerList: typeof import('./components/PlayerList.vue')['default']
+    PredictionsList: typeof import('./components/PredictionsList.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
   }

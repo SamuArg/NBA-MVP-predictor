@@ -15,19 +15,18 @@
   </v-container>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue";
+<script lang="ts" setup>
 import VChart from "vue-echarts";
 import { useMvpChart } from "@/composables/useMvpChart";
-import * as echarts from 'echarts/core';
-import { CanvasRenderer } from 'echarts/renderers';
-import { LineChart } from 'echarts/charts';
+import * as echarts from "echarts/core";
+import { CanvasRenderer } from "echarts/renderers";
+import { LineChart } from "echarts/charts";
 import {
   TooltipComponent,
   LegendComponent,
   GridComponent,
   TitleComponent,
-} from 'echarts/components';
+} from "echarts/components";
 
 echarts.use([
   LineChart,
@@ -38,11 +37,5 @@ echarts.use([
   CanvasRenderer,
 ]);
 
-
-export default defineComponent({
-  components: { VChart },
-  setup() {
-    return useMvpChart();
-  },
-});
+const { chartOptions, loading, onChartClick } = useMvpChart();
 </script>
