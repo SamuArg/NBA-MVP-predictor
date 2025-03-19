@@ -28,6 +28,9 @@ You can see a live demo of the project [here](https://nba-mvp-predictions.netlif
     ```
 3. Create a .env with those this key : MONGOURI and write your own MONGO URI.
 4. Run the wsgi.py file to start the backend.
+   ```sh
+   python wsgi.py
+   ```
 
 ### Launch the frontend
 
@@ -41,10 +44,13 @@ You can see a live demo of the project [here](https://nba-mvp-predictions.netlif
     ```
 3. If you run your own backend make sure to update the api url.
 
+4. Launch the frontend
+   ```sh
+   npm run dev
+   ```
 
 ## Features to add
 - Show shap forces to understand what stats impact the most the prediction
-- Show for each dates the ranking with probabilities under the table
 - Update season to season automatically
 
 ## License
