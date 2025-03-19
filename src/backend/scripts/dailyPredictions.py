@@ -1,6 +1,5 @@
 from pymongo import MongoClient
 import datetime
-from dotenv import load_dotenv
 import os
 from scripts.Predict import Predict
 from dotenv import load_dotenv

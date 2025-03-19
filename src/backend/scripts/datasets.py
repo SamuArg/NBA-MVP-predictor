@@ -2,7 +2,7 @@ import pandas as pd
 from sklearn.model_selection import GroupKFold
 
 def create_folds():
-    data = pd.read_csv('../data/processed/mvps.csv')
+    data = pd.read_csv('data/processed/mvps.csv')
 
     X = data.drop(columns=['Share'])
     y = data['Share']
