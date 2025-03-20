@@ -1,7 +1,7 @@
-name: Daily MVP Prediction
+name: Backend Test
 
 on:
-  push
+  push:
   workflow_dispatch:
 
 jobs:
