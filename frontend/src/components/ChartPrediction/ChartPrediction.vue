@@ -1,0 +1,4 @@
+<template>
+  <MvpChart />
+  <PredictionsList />
+</template>

@@ -8,7 +8,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    Main: typeof import('./components/Main.vue')['default']
+    ChartPrediction: typeof import('./components/ChartPrediction/ChartPrediction.vue')['default']
     MvpChart: typeof import('./components/MvpChart/MvpChart.vue')['default']
     NavBar: typeof import('./components/NavBar/NavBar.vue')['default']
     PlayerList: typeof import('./components/PlayerList/PlayerList.vue')['default']
