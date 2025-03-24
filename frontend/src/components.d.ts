@@ -10,6 +10,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     About: typeof import('./components/About/About.vue')['default']
     ChartPrediction: typeof import('./components/ChartPrediction/ChartPrediction.vue')['default']
+    HistoricComponent: typeof import('./components/HistoricComponent/HistoricComponent.vue')['default']
     MvpChart: typeof import('./components/MvpChart/MvpChart.vue')['default']
     NavBar: typeof import('./components/NavBar/NavBar.vue')['default']
     PlayerList: typeof import('./components/PlayerList/PlayerList.vue')['default']
