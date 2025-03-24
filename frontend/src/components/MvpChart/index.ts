@@ -1,2 +1,2 @@
-import MvpChart from "@/components/MvpChart/MvpChart.vue";
+import MvpChart from '@/components/MvpChart/MvpChart.vue';
 export default MvpChart;

@@ -1,10 +1,10 @@
-import { ref, watch, onMounted, computed, type Ref } from "vue";
-import { useAppStore } from "@/stores/app";
+import { ref, watch, onMounted, computed, type Ref } from 'vue';
+import { useAppStore } from '@/stores/app';
 import {
   getLatestPredictions,
   getPredictionsDate,
   type Prediction,
-} from "@/api/mvps";
+} from '@/api/mvps';
 
 export function useMvpPredictions() {
   const players: Ref<Prediction[]> = ref([]);
@@ -17,7 +17,7 @@ export function useMvpPredictions() {
       const data = await getPredictionsDate(date);
       if (data) players.value = data;
     } catch (error) {
-      console.error("Error fetching MVP probabilities:", error);
+      console.error('Error fetching MVP probabilities:', error);
     }
   };
 

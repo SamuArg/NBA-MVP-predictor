@@ -8,21 +8,21 @@
     <v-list-item-subtitle>
       Probability: {{ player.probability.toFixed(2) }}%
     </v-list-item-subtitle>
-    <template v-slot:append>
+    <template #append>
       <v-img
         :src="getTeamLogo(player.team)"
         alt="Team Logo"
         width="50"
         height="50"
         contain
-      ></v-img>
+      />
     </template>
   </v-list-item>
 </template>
 
 <script lang="ts" setup>
-import { getTeamLogo } from "@/utils/getTeamLogo";
-import type { Prediction } from "@/api/mvps";
+import { getTeamLogo } from '@/utils/getTeamLogo';
+import type { Prediction } from '@/api/mvps';
 
 defineProps<{ players: Prediction[] }>();
 </script>

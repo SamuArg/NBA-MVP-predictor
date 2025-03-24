@@ -3,30 +3,33 @@
     <v-card>
       <v-card-title>MVP Probability Progression</v-card-title>
       <v-card-text>
-        <v-progress-circular v-if="loading" indeterminate></v-progress-circular>
+        <v-progress-circular
+          v-if="loading"
+          indeterminate
+        />
         <v-chart
           v-else
           :option="chartOptions"
-          @click="onChartClick"
           style="height: 400px"
-        ></v-chart>
+          @click="(params: any) => onChartClick(params)"
+        />
       </v-card-text>
     </v-card>
   </v-container>
 </template>
 
 <script lang="ts" setup>
-import VChart from "vue-echarts";
-import { useMvpChart } from "@/components/MvpChart/useMvpChart";
-import * as echarts from "echarts/core";
-import { CanvasRenderer } from "echarts/renderers";
-import { LineChart } from "echarts/charts";
+import VChart from 'vue-echarts';
+import { useMvpChart } from '@/components/MvpChart/useMvpChart';
+import * as echarts from 'echarts/core';
+import { CanvasRenderer } from 'echarts/renderers';
+import { LineChart } from 'echarts/charts';
 import {
   TooltipComponent,
   LegendComponent,
   GridComponent,
   TitleComponent,
-} from "echarts/components";
+} from 'echarts/components';
 
 echarts.use([
   LineChart,

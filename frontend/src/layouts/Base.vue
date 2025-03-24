@@ -2,7 +2,7 @@
   <v-main>
     <router-view />
     <NavBar />
-    <slot></slot>
+    <slot />
   </v-main>
 </template>
 

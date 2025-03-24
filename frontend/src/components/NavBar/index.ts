@@ -1,2 +1,2 @@
-import NavBar from "@/components/NavBar/NavBar.vue";
+import NavBar from '@/components/NavBar/NavBar.vue';
 export default NavBar;

@@ -1,2 +1,2 @@
-import ChartPrediction from "./ChartPrediction.vue";
+import ChartPrediction from './ChartPrediction.vue';
 export default ChartPrediction;

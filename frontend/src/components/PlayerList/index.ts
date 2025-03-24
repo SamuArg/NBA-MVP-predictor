@@ -1,2 +1,2 @@
-import PlayerList from "@/components/PlayerList/PlayerList.vue";
+import PlayerList from '@/components/PlayerList/PlayerList.vue';
 export default PlayerList;
