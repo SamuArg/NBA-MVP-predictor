@@ -7,7 +7,10 @@
       <v-list-subheader v-else>
         Latest MVP probabilities
       </v-list-subheader>
-      <PlayerList :players="players" />
+      <PlayerList
+        :players="players"
+        :proba="true"
+      />
     </v-list>
   </v-container>
 </template>

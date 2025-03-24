@@ -5,7 +5,7 @@
     max-width="500px"
   >
     <v-list-item-title>{{ index + 1 }} - {{ player.player }}</v-list-item-title>
-    <v-list-item-subtitle>
+    <v-list-item-subtitle v-if="proba">
       Probability: {{ player.probability.toFixed(2) }}%
     </v-list-item-subtitle>
     <template #append>
@@ -24,5 +24,8 @@
 import { getTeamLogo } from '@/utils/getTeamLogo';
 import type { Prediction } from '@/api/mvps';
 
-defineProps<{ players: Prediction[] }>();
+defineProps<{
+  players: Prediction[],
+  proba: boolean
+}>();
 </script>

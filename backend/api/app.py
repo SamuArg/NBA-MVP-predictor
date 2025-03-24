@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 import os
-from scripts.dailyPredictions import get_prediction_by_date, get_latest_prediction, get_prediction_by_season
+from scripts.dailyPredictions import get_prediction_by_date, get_latest_prediction, get_prediction_by_season, get_all
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -12,6 +12,7 @@ app = Flask(__name__)
 
 CORS(app)  # Allow all origins (for development)
 
+
 @app.route("/mvps", methods=["GET"])
 def get_mvps():
     date = request.args.get("date")  # Query param: ?date=YYYY-MM-DD
@@ -20,9 +21,14 @@ def get_mvps():
         return jsonify(get_prediction_by_date(date))
     elif season:
         return jsonify(get_prediction_by_season(int(season)))
-    
+
     return jsonify(get_latest_prediction())
-    
+
+
+@app.route("/", methods=["GET"])
+def get_all_predictions():
+    return jsonify(get_all())
+
 
 if __name__ == "__main__":
     app.run()

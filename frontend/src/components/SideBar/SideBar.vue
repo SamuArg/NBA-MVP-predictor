@@ -8,25 +8,9 @@
 </template>
 
 <script setup lang="ts">
+import { useSideBar } from '@/components/SideBar/useSideBar.ts';
+
 defineProps<{ drawer: boolean }>();
 defineEmits(['update:drawer']);
-
-const seasons = [
-  {
-    title: '2025',
-    value: '2025',
-  },
-  {
-    title: '2024',
-    value: '2024',
-  },
-  {
-    title: '2023',
-    value: '2023',
-  },
-  {
-    title: '2022',
-    value: '2022',
-  },
-];
+const { seasons } = useSideBar();
 </script>
