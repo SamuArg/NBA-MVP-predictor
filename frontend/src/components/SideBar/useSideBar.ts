@@ -1,5 +1,6 @@
 import { getAllPredictions } from '@/api/mvps.ts';
 import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 
 export function useSideBar() {
   const seasons = ref<{ title: string; value: string }[]>([]);
@@ -27,7 +28,13 @@ export function useSideBar() {
     }
   };
 
+  const router = useRouter();
+
+  const navigateToSeason = (season: string) => {
+    router.push({ path: '/historic', query: { season } });
+  };
+
   onMounted(getSeasons);
 
-  return { seasons };
+  return { seasons, navigateToSeason };
 }
