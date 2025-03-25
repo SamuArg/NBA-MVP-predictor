@@ -1,5 +1,8 @@
 <template>
   <Base :key="season">
+    <h1 class="text-h4 mt-4 text-center">
+      Season {{ season }}
+    </h1>
     <ChartPrediction
       :season="season"
       :show-ranking="true"

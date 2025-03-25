@@ -12,7 +12,7 @@ export function useChartPrediction(season: string, showRanking: boolean) {
     const data = await getPredictionsSeason(season);
     if (data) {
       players.value = data[data.length - 1].predictions;
-      store.setSelectedDate(data[data.length - 1].date);
+      store.setSelectedDate('');
     }
   };
 
