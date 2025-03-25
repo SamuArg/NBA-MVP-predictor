@@ -24,7 +24,7 @@ export function useSideBar() {
             value: String(prediction.season),
           }]),
         ).values(),
-      ];
+      ].sort((a, b) => Number(b.value) - Number(a.value));
     }
   };
 
