@@ -4,6 +4,7 @@ import os
 from scripts.Predict import Predict
 from scripts.Scrap import Scrap
 from dotenv import load_dotenv
+from joblib import load
 
 load_dotenv()
 
@@ -14,13 +15,15 @@ db = client.get_database("predictions")
 pred_collection = db.predictions
 ranking_collection = db.ranking
 CURRENT_SEASON = 2025
+MODEL = load('models/model.joblib')
 
 
-def make_prediction(season):
-    predict = Predict(season)
-    data = predict.predict_proba()
-    predictions = [{"player": data['Player'][key], "probability": float(data['Proba'][key]), "team": data['Team'][key]}
-                   for key in data['Player'].keys()]
+def make_prediction(season, model, normalize=True):
+    predict = Predict(season, model)
+    data = predict.predict(normalize=normalize)
+    predictions = [
+        {"player": data['Player'][key], "probability": float(data['Prediction'][key]), "team": data['Team'][key]}
+        for key in data['Player'].keys()]
     print(predictions)
     return predictions
 
@@ -98,7 +101,7 @@ def update_mvps(season):
 
 
 def main():
-    predictions = make_prediction(CURRENT_SEASON)
+    predictions = make_prediction(CURRENT_SEASON, MODEL)
     save_prediction(predictions, CURRENT_SEASON, datetime.date.today().isoformat())
 
 

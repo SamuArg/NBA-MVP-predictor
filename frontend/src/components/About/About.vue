@@ -28,11 +28,11 @@
               Model Details
             </div>
             <p class="mb-4">
-              Our prediction engine employs a Random Forest Regressor model that
+              Our prediction engine employs a Multi Layer Perceptron model from sk-learn that
               calculates MVP share probabilities for each player. The model
               analyzes daily performance metrics to rank the top 10 MVP
               candidates, converting raw MVP share calculations into probability
-              percentages. With a 70% accuracy rate in predicting past MVP
+              percentages. With a 72% accuracy rate in predicting past MVP
               winners, our model has proven to be highly reliable in identifying
               MVP-caliber performance.
             </p>
@@ -47,7 +47,9 @@
               VORP (Value Over Replacement Player), PER (Player Efficiency
               Rating), Team Seed, BPM (Box Plus/Minus), and Team Win Percentage.
               This aligns with historical voting trends, where voters heavily
-              weigh both individual excellence and team success.
+              weigh both individual excellence and team success. The plot shows
+              the most important features that a random forest regressor uses to make
+              his prediction. His accuracy is about 65%.
             </p>
             <img
               src="@/assets/importance.png"
@@ -59,7 +61,8 @@
             </div>
             <p class="mb-4">
               Our predictions are powered by comprehensive NBA statistics from
-              <a href="https://www.basketball-reference.com/">Basketball Reference</a>. We utilize custom web scraping tools to gather and process
+              <a href="https://www.basketball-reference.com/">Basketball Reference</a>. We utilize custom web scraping
+              tools to gather and process
               advanced statistics, team standings, and historical MVP voting
               data, ensuring our predictions are based on the most accurate and
               up-to-date information available.

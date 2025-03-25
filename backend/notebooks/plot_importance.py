@@ -2,12 +2,11 @@ import joblib
 import matplotlib.pyplot as plt
 import pandas as pd
 
-data = pd.read_csv('../data/processed/mvps.csv')
+data = pd.read_csv('data/processed/mvps.csv')
 
-X_train = data.drop(columns=['Share', "Team", "index", "Player","Year"])
+X_train = data.drop(columns=['Share', "Team", "Player", "Year"])
 
-model = joblib.load('../models/model.joblib')
-
+model = joblib.load('models/model.joblib')
 
 feature_importances = model.feature_importances_
 feature_names = X_train.columns
