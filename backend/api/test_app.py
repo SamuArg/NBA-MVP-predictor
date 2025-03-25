@@ -1,5 +1,4 @@
 import pytest
-from flask import json
 from api.app import app
 from unittest.mock import patch
 
