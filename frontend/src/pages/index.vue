@@ -1,6 +1,6 @@
 <template>
   <Base>
-    <ChartPrediction />
+    <ChartPrediction season="2025" />
   </Base>
 </template>
 

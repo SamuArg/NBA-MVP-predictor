@@ -4,7 +4,8 @@ import { getPredictionsSeason } from '@/api/mvps';
 import { useAppStore } from '@/stores/app';
 import type { ECElementEvent } from 'echarts/types/dist/echarts';
 
-export function useMvpChart() {
+export function useMvpChart(season: string) {
+  const showChart = ref(false);
   const chartOptions = ref({});
   const store = useAppStore();
   const loading = computed(() => store.loading);
@@ -39,9 +40,14 @@ export function useMvpChart() {
 
   onMounted(async () => {
     try {
-      const rawData = await getPredictionsSeason('2025');
+      const rawData = await getPredictionsSeason(season);
       if (rawData) {
         const { dates, series, players } = transformData(rawData);
+        if (players.length < 2) {
+          showChart.value = false;
+          store.setLoading(false);
+          return;
+        }
         chartOptions.value = {
           tooltip: {
             trigger: 'axis',
@@ -50,7 +56,7 @@ export function useMvpChart() {
                 .sort((a, b) => b.value - a.value)
                 .map(
                   (item) =>
-                    `${item.marker} ${item.seriesName}: ${item.value.toFixed(2)}`
+                    `${item.marker} ${item.seriesName}: ${item.value.toFixed(2)}`,
                 )
                 .join('<br>'),
           },
@@ -66,9 +72,11 @@ export function useMvpChart() {
         };
       }
       store.setLoading(false);
+      showChart.value = true;
     } catch (error) {
       console.error('Error fetching MVP probabilities:', error);
       store.setLoading(false);
+      showChart.value = false;
     }
   });
 
@@ -78,5 +86,5 @@ export function useMvpChart() {
     }
   };
 
-  return { loading, chartOptions, onChartClick };
+  return { showChart, loading, chartOptions, onChartClick };
 }

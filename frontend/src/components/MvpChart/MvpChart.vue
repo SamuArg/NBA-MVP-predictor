@@ -1,5 +1,5 @@
 <template>
-  <v-container>
+  <v-container v-if="showChart">
     <v-card>
       <v-card-title>MVP Probability Progression</v-card-title>
       <v-card-text>
@@ -40,5 +40,9 @@ echarts.use([
   CanvasRenderer,
 ]);
 
-const { chartOptions, loading, onChartClick } = useMvpChart();
+const props = defineProps<{ season?: string }>();
+
+const seasonValue = computed(() => props.season ?? '2025');
+
+const { showChart, chartOptions, loading, onChartClick } = useMvpChart(seasonValue.value);
 </script>

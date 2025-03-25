@@ -17,6 +17,9 @@
 
 <script lang="ts" setup>
 import { useMvpPredictions } from '@/components/PredictionsList/useMvpPredictions';
+import type { Prediction } from '@/api/mvps.ts';
 
-const { players, loading, selectedDate } = useMvpPredictions();
+defineProps<{ selectedDate: string; players: Prediction[] }>();
+
+const { loading } = useMvpPredictions();
 </script>
