@@ -1,10 +1,11 @@
 import { computed, onMounted, ref, type Ref, watch } from 'vue';
-import { getPredictionsSeason, getPredictionsDate, type Prediction } from '@/api/mvps.ts';
+import { getPredictionsSeason, getPredictionsDate, getMvpRanking, type Prediction } from '@/api/mvps.ts';
 import { useAppStore } from '@/stores/app.ts';
 
-export function useChartPrediction(season: string) {
+export function useChartPrediction(season: string, showRanking: boolean) {
   const players: Ref<Prediction[]> = ref([]);
   const store = useAppStore();
+  const ranking: Ref<Prediction[]> = ref([]);
   const selectedDate = computed(() => store.selectedDate);
 
   const getLastPrediction = async () => {
@@ -24,8 +25,18 @@ export function useChartPrediction(season: string) {
     }
   };
 
+  const getRanking = async (season: string) => {
+    try {
+      const data = await getMvpRanking(season);
+      if (data) ranking.value = data;
+    } catch (error) {
+      console.error('Error fetching ranking', error);
+    }
+  };
+
   onMounted(async () => {
     await getLastPrediction();
+    if (showRanking) await getRanking(season);
   });
 
   watch(selectedDate, (newDate) => {
@@ -35,5 +46,5 @@ export function useChartPrediction(season: string) {
       getLastPrediction();
     }
   });
-  return { selectedDate, players };
+  return { selectedDate, players, ranking };
 }

@@ -1,7 +1,8 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 import os
-from scripts.dailyPredictions import get_prediction_by_date, get_latest_prediction, get_prediction_by_season, get_all
+from scripts.dailyPredictions import get_prediction_by_date, get_latest_prediction, get_prediction_by_season, get_all, \
+    get_ranking_by_season
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -28,6 +29,13 @@ def get_mvps():
 @app.route("/", methods=["GET"])
 def get_all_predictions():
     return jsonify(get_all())
+
+
+@app.route("/ranking", methods=["GET"])
+def get_ranking():
+    season = request.args.get("season")
+    if season:
+        return jsonify(get_ranking_by_season(int(season)))
 
 
 if __name__ == "__main__":

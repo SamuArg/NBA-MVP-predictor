@@ -77,3 +77,16 @@ export const getAllPredictions = async (): Promise<MVPResponse[] | null> => {
     return null;
   }
 };
+
+export const getMvpRanking = async (season: string): Promise<Prediction[] | null> => {
+  try {
+    const response = await fetch(`${URL}ranking?season=${season}`);
+    if (!response.ok) {
+      throw new Error(`API request failed with status ${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching ranking', error);
+    return null;
+  }
+};

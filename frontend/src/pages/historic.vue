@@ -1,14 +1,22 @@
 <template>
-  <Base>
-    <ChartPrediction :season="season" />
+  <Base :key="season">
+    <ChartPrediction
+      :season="season"
+      :show-ranking="true"
+    />
   </Base>
 </template>
 
 <script setup lang="ts">
 import Base from '@/layouts/Base.vue';
 import { useRoute } from 'vue-router';
-import { computed } from 'vue';
+import { watch } from 'vue';
 
 const route = useRoute();
-const season = computed(() => route.query.season as string | undefined);
+const season = ref(route.query.season as string);
+watch(() => route.query.season, (newSeason) => {
+  if (newSeason) {
+    season.value = newSeason as string;
+  }
+});
 </script>

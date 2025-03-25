@@ -1,5 +1,6 @@
 <template>
   <v-navigation-drawer
+    :key="key"
     :model-value="drawer"
     @update:model-value="(value) => $emit('update:drawer', value)"
   >
@@ -19,5 +20,5 @@ import { useSideBar } from '@/components/SideBar/useSideBar.ts';
 
 defineProps<{ drawer: boolean }>();
 defineEmits(['update:drawer']);
-const { seasons, navigateToSeason } = useSideBar();
+const { seasons, navigateToSeason, key } = useSideBar();
 </script>

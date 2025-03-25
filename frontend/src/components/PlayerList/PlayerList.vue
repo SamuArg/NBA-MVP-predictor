@@ -8,6 +8,9 @@
     <v-list-item-subtitle v-if="proba">
       Probability: {{ player.probability.toFixed(2) }}%
     </v-list-item-subtitle>
+    <v-list-item-subtitle v-else>
+      MVP Share: {{ player.probability }}
+    </v-list-item-subtitle>
     <template #append>
       <v-img
         :src="getTeamLogo(player.team)"

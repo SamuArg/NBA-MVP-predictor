@@ -43,7 +43,7 @@ export function useMvpChart(season: string) {
       const rawData = await getPredictionsSeason(season);
       if (rawData) {
         const { dates, series, players } = transformData(rawData);
-        if (players.length < 2) {
+        if (dates.length < 2) {
           showChart.value = false;
           store.setLoading(false);
           return;

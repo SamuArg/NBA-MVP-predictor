@@ -1,6 +1,9 @@
 <template>
   <Base>
-    <ChartPrediction season="2025" />
+    <ChartPrediction
+      season="2025"
+      :show-ranking="false"
+    />
   </Base>
 </template>
 
