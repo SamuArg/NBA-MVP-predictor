@@ -11,7 +11,8 @@ API_KEY = os.getenv("API_KEY")
 
 app = Flask(__name__)
 
-CORS(app)  # Allow all origins (for development)
+CORS(app, resources={
+    r"/*": {"origins": ["https://nba-mvp-predictions.netlify.app/"]}})
 
 
 @app.route("/mvps", methods=["GET"])
