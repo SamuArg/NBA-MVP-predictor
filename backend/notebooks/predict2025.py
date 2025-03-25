@@ -1,6 +1,9 @@
 from scripts.Predict import Predict
+from joblib import load
 
-predict = Predict(2025)
+model = load("models/model.joblib")
+
+predict = Predict(2025, model)
 proba = predict.predict_proba()
 print(proba)
 predict = predict.predict()

@@ -1,9 +1,9 @@
 // Utilities
-import { defineStore } from "pinia";
+import { defineStore } from 'pinia';
 
-export const useAppStore = defineStore("app", {
+export const useAppStore = defineStore('app', {
   state: () => ({
-    selectedDate: "",
+    selectedDate: '',
     loading: true,
   }),
   actions: {

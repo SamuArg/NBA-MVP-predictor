@@ -1,9 +1,11 @@
-import joblib
 import xgboost as xgb
 from sklearn.ensemble import RandomForestRegressor, AdaBoostRegressor
 from sklearn.neural_network import MLPRegressor
 from scripts.datasets import create_folds
 from joblib import dump
+import pandas as pd
+
+scaled = pd.read_csv("data/processed/scaled.csv")
 
 models = [
     (RandomForestRegressor(n_estimators=100, n_jobs=-1, random_state=42), "Forest"),
@@ -25,20 +27,29 @@ for model, name in models:
         X_train, X_test = X.iloc[train_idx], X.iloc[test_idx]
         y_train, y_test = y.iloc[train_idx], y.iloc[test_idx]
 
-        X_train_clean = X_train.drop(columns=["Year", "Player", "Team", "index"])
+        year = int(X_test['Year'].iloc[0])
+        X_to_predict = scaled[scaled.Year == year]
+        X_to_predict_clean = X_to_predict.drop(columns=["Year", "Player", "Team"]).reset_index(drop=True)
+        X_train_clean = X_train.drop(columns=["Year", "Player", "Team"]).reset_index(drop=True)
         model.fit(X_train_clean, y_train)
 
-        X_test_clean = X_test.drop(columns=["Year", "Player", "Team", "index"])
-        y_preds = model.predict(X_test_clean)
+        # Make predictions directly on test data
+        y_preds = model.predict(X_to_predict_clean)
 
-        X_test2 = X_test.copy()
-        X_test2["Predicted"] = y_preds
-        X_test2["Actual"] = y_test
-        X_predict = X_test2.sort_values("Predicted", ascending=False)
-        X_real = X_test2.sort_values("Actual", ascending=False)
+        # Get predicted MVP
+        X_test = X_to_predict.copy()
+        X_test["Predicted"] = y_preds
+        X_predict = X_test.sort_values("Predicted", ascending=False)
+        predicted_player = X_predict["Player"].iloc[0]
+        predicted_value = X_predict["Predicted"].iloc[0]
+
+        # Get actual MVP
+        X_test["Actual"] = y_test
+        X_real = X_test.sort_values("Actual", ascending=False)
+        actual_player = X_real["Player"].iloc[0]
 
         total += 1
-        if X_real["Player"].iloc[0] != X_predict["Player"].iloc[0]:
+        if actual_player != predicted_player:
             error += 1
 
     accuracy = (total - error) / total
@@ -52,8 +63,7 @@ print(f"Best model: {best_model}, accuracy: {best_accuracy}")
 
 print(f"Retraining the best model ({best_model}) on the entire dataset.")
 
-X_clean = X.drop(columns=["Year", "Player", "Team", "index"])
-
+X_clean = X.drop(columns=["Year", "Player", "Team"]).reset_index(drop=True)
 best_model.fit(X_clean, y)
 
 dump(best_model, "models/model.joblib")

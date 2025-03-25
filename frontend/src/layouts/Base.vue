@@ -1,7 +1,8 @@
 <template>
   <v-main>
+    <NavBar />
+    <slot />
     <router-view />
-    <Main />
   </v-main>
 </template>
 

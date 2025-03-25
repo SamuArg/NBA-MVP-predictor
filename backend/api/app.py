@@ -1,7 +1,8 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 import os
-from scripts.dailyPredictions import get_prediction_by_date, get_latest_prediction, get_prediction_by_season
+from scripts.dailyPredictions import get_prediction_by_date, get_latest_prediction, get_prediction_by_season, get_all, \
+    get_ranking_by_season
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -10,7 +11,9 @@ API_KEY = os.getenv("API_KEY")
 
 app = Flask(__name__)
 
-CORS(app)  # Allow all origins (for development)
+CORS(app, resources={
+    r"/*": {"origins": ["https://nba-mvp-predictions.netlify.app/"]}})
+
 
 @app.route("/mvps", methods=["GET"])
 def get_mvps():
@@ -20,9 +23,21 @@ def get_mvps():
         return jsonify(get_prediction_by_date(date))
     elif season:
         return jsonify(get_prediction_by_season(int(season)))
-    
+
     return jsonify(get_latest_prediction())
-    
+
+
+@app.route("/", methods=["GET"])
+def get_all_predictions():
+    return jsonify(get_all())
+
+
+@app.route("/ranking", methods=["GET"])
+def get_ranking():
+    season = request.args.get("season")
+    if season:
+        return jsonify(get_ranking_by_season(int(season)))
+
 
 if __name__ == "__main__":
     app.run()

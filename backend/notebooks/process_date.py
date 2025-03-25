@@ -28,3 +28,11 @@ print(mvps.head(5))
 mvps_scaled = pro.scale()
 print(mvps_scaled.head(5))
 mvps_scaled.to_csv("data/processed/mvps.csv", index=False)
+
+standings = pd.read_csv('data/raw/1981_2024_standings.csv')
+advanced = pd.read_csv('data/raw/1981_2024_advanced.csv')
+per_game = pd.read_csv('data/raw/1981_2024_per_game.csv')
+
+pro = Processed(None, standings, advanced, per_game)
+scaled = pro.process_without_mvps()
+scaled.to_csv("data/processed/scaled.csv", index=False)

@@ -1,3 +1,8 @@
+const URL = 'https://nba-mvp-predictor.onrender.com/';
+
+//const URL = 'http://localhost:5000/';
+
+
 export interface Prediction {
   player: string;
   probability: number;
@@ -7,6 +12,7 @@ export interface Prediction {
 export interface MVPResponse {
   date: string;
   predictions: Prediction[];
+  season: number;
 }
 
 export const getPredictionsSeason = async (
@@ -14,17 +20,16 @@ export const getPredictionsSeason = async (
 ): Promise<MVPResponse[] | null> => {
   try {
     const response = await fetch(
-      `https://nba-mvp-predictor.onrender.com/mvps?season=${season}`,
+      `${URL}mvps?season=${season}`,
     );
 
     if (!response.ok) {
       throw new Error(`API request failed with status ${response.status}`);
     }
 
-    const data: MVPResponse[] = await response.json();
-    return data;
+    return await response.json();
   } catch (error) {
-    console.error("Error fetching MVP probabilities:", error);
+    console.error('Error fetching MVP probabilities:', error);
     return null;
   }
 };
@@ -34,7 +39,7 @@ export const getPredictionsDate = async (
 ): Promise<Prediction[] | null> => {
   try {
     const response = await fetch(
-      `https://nba-mvp-predictor.onrender.com/mvps?date=${date}`,
+      `${URL}mvps?date=${date}`,
     );
 
     if (!response.ok) {
@@ -42,20 +47,46 @@ export const getPredictionsDate = async (
     }
     return await response.json();
   } catch (error) {
-    console.error("Error fetching MVP probabilities:", error);
+    console.error('Error fetching MVP probabilities:', error);
     return null;
   }
 };
 
 export const getLatestPredictions = async (): Promise<Prediction[] | null> => {
   try {
-    const response = await fetch(`https://nba-mvp-predictor.onrender.com/mvps`);
+    const response = await fetch(`${URL}mvps`);
     if (!response.ok) {
       throw new Error(`API request failed with status ${response.status}`);
     }
     return await response.json();
   } catch (error) {
-    console.error("Error fetching MVP probabilities:", error);
+    console.error('Error fetching MVP probabilities:', error);
+    return null;
+  }
+};
+
+export const getAllPredictions = async (): Promise<MVPResponse[] | null> => {
+  try {
+    const response = await fetch(URL);
+    if (!response.ok) {
+      throw new Error(`API request failed with status ${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching Predictions', error);
+    return null;
+  }
+};
+
+export const getMvpRanking = async (season: string): Promise<Prediction[] | null> => {
+  try {
+    const response = await fetch(`${URL}ranking?season=${season}`);
+    if (!response.ok) {
+      throw new Error(`API request failed with status ${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching ranking', error);
     return null;
   }
 };

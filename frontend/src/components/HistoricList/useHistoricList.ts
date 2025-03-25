@@ -1,9 +1,8 @@
+import { useAppStore } from '@/stores/app.ts';
 import { computed } from 'vue';
-import { useAppStore } from '@/stores/app';
 
-export function useMvpPredictions() {
+export function useHistoricList() {
   const store = useAppStore();
   const loading = computed(() => store.loading);
-
   return { loading };
 }

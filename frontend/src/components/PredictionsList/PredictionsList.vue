@@ -4,13 +4,22 @@
       <v-list-subheader v-if="selectedDate">
         MVP probabilities for {{ selectedDate }}
       </v-list-subheader>
-      <v-list-subheader v-else> Latest MVP probabilities </v-list-subheader>
-      <PlayerList :players="players" />
+      <v-list-subheader v-else>
+        Latest MVP probabilities
+      </v-list-subheader>
+      <PlayerList
+        :players="players"
+        :proba="true"
+      />
     </v-list>
   </v-container>
 </template>
 
 <script lang="ts" setup>
-import { useMvpPredictions } from "@/components/PredictionsList/useMvpPredictions";
-const { players, loading, selectedDate } = useMvpPredictions();
+import { useMvpPredictions } from '@/components/PredictionsList/useMvpPredictions';
+import type { Prediction } from '@/api/mvps.ts';
+
+defineProps<{ selectedDate: string; players: Prediction[]; }>();
+
+const { loading } = useMvpPredictions();
 </script>

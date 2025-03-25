@@ -2,7 +2,9 @@ from pymongo import MongoClient
 import datetime
 import os
 from scripts.Predict import Predict
+from scripts.Scrap import Scrap
 from dotenv import load_dotenv
+from joblib import load
 
 load_dotenv()
 
@@ -10,64 +12,97 @@ MONGO_URI = os.getenv("MONGOURI")
 
 client = MongoClient(MONGO_URI)
 db = client.get_database("predictions")
-collection = db.predictions
+pred_collection = db.predictions
+ranking_collection = db.ranking
 CURRENT_SEASON = 2025
+MODEL = load('models/model.joblib')
 
-def make_prediction():
-    predict = Predict(2025)
-    data = predict.predict_proba()
-    predictions = [{"player": data['Player'][key], "probability": float(data['Proba'][key]), "team": data['Team'][key]} for key in data['Player'].keys()]
+
+def make_prediction(season, model, normalize=True):
+    predict = Predict(season, model)
+    data = predict.predict(normalize=normalize)
+    predictions = [
+        {"player": data['Player'][key], "probability": float(data['Prediction'][key]), "team": data['Team'][key]}
+        for key in data['Player'].keys()]
     print(predictions)
     return predictions
 
 
-def save_prediction(predictions):
+def save_prediction(predictions, season, date):
     """Store predictions with the current date"""
     if not all(isinstance(p, dict) and 'player' in p and 'probability' in p for p in predictions):
         raise ValueError("Each prediction must be a dictionary with 'player' and 'probability' keys")
-    
-    today = datetime.date.today().isoformat()
 
-    existing_prediction = collection.find_one({"date": today})
+    existing_prediction = pred_collection.find_one({"date": date})
     if existing_prediction:
-        print(f"Prediction for {today} already exists. Skipping.")
+        print(f"Prediction for {date} already exists. Skipping.")
         return
-    
-    collection.update_one(
-        {"date": today, "season": CURRENT_SEASON},
-        {"$set": {"predictions": predictions, "date": today, "season": CURRENT_SEASON}},
+
+    pred_collection.update_one(
+        {"date": date, "season": season},
+        {"$set": {"predictions": predictions, "date": date, "season": season}},
         upsert=True
     )
-    print(f"Prediction for {today} saved.")
+    print(f"Prediction for {date} saved.")
 
 
 def get_prediction_by_date(date):
     """Retrieve prediction by date"""
-    result = collection.find_one({"date": date})
+    result = pred_collection.find_one({"date": date})
     if result:
         return result["predictions"]
     return "Predictions for this date is not available."
 
+
 def get_latest_prediction():
     """Retrieve the latest prediction"""
-    result = collection.find_one(sort=[("date", -1)])
+    result = pred_collection.find_one(sort=[("date", -1)])
     if result:
         return result["predictions"]
     return "No predictions available."
 
+
 def get_prediction_by_season(season):
     """Retrieve all predictions for a given season, sorted by date (oldest to newest)."""
-    results = collection.find({"season": season}).sort("date", 1)
-    predictions = [{ "date": result["date"], "predictions": result["predictions"] } for result in results]
-    
+    results = pred_collection.find({"season": season}).sort("date", 1)
+    predictions = [{"date": result["date"], "predictions": result["predictions"], "season": result["season"]} for result
+                   in results]
+
     if predictions:
         return predictions
     return f"No predictions available for Season {season}."
-    
+
+
+def get_ranking_by_season(season):
+    results = ranking_collection.find_one({"season": season})
+    if results:
+        return results["predictions"]
+
+
+def get_all():
+    results = pred_collection.find({}, {"_id": 0})
+    return list(results)
+
+
+def save_mvps(mvps, season):
+    ranking_collection.update_one(
+        {"season": season},
+        {"$set": {"predictions": mvps}},
+        upsert=True
+    )
+
+
+def update_mvps(season):
+    scrap = Scrap(season, season)
+    mvps = scrap.scrap_mvps()
+    mvps = mvps[["Player", "Tm", "Share"]].rename(columns={"Player": "player", "Tm": "team", "Share": "probability"})
+    mvps = mvps.to_dict("records")
+    save_mvps(mvps, season)
+
 
 def main():
-    predictions = make_prediction()
-    save_prediction(predictions)
+    predictions = make_prediction(CURRENT_SEASON, MODEL)
+    save_prediction(predictions, CURRENT_SEASON, datetime.date.today().isoformat())
 
 
 if __name__ == "__main__":

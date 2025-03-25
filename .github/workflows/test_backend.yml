@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  run-prediction:
+  run-backend-test:
     runs-on: ubuntu-latest
 
     steps:
