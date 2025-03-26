@@ -90,3 +90,16 @@ export const getMvpRanking = async (season: string): Promise<Prediction[] | null
     return null;
   }
 };
+
+export const getSeason = async (): Promise<string | null> => {
+  try {
+    const response = await fetch(`${URL}season`);
+    if (!response.ok) {
+      throw new Error(`API request failed with status ${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.log('Error fetching season', error);
+    return null;
+  }
+};

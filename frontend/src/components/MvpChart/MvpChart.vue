@@ -10,6 +10,7 @@
         <v-chart
           v-else
           :option="chartOptions"
+          :autoresize="true"
           style="height: 400px"
           @click="(params: any) => onChartClick(params)"
         />

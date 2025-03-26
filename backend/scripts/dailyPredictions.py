@@ -5,6 +5,7 @@ from scripts.Predict import Predict
 from scripts.Scrap import Scrap
 from dotenv import load_dotenv
 from joblib import load
+from datetime import datetime
 
 load_dotenv()
 
@@ -14,7 +15,6 @@ client = MongoClient(MONGO_URI)
 db = client.get_database("predictions")
 pred_collection = db.predictions
 ranking_collection = db.ranking
-CURRENT_SEASON = 2025
 MODEL = load('models/model.joblib')
 
 
@@ -100,9 +100,19 @@ def update_mvps(season):
     save_mvps(mvps, season)
 
 
+def get_current_season():
+    current_year = datetime.now().year
+    current_month = datetime.now().month
+
+    if current_month < 10:
+        return current_year
+    else:
+        return current_year + 1
+
+
 def main():
-    predictions = make_prediction(CURRENT_SEASON, MODEL)
-    save_prediction(predictions, CURRENT_SEASON, datetime.date.today().isoformat())
+    predictions = make_prediction(get_current_season(), MODEL)
+    save_prediction(predictions, get_current_season(), datetime.date.today().isoformat())
 
 
 if __name__ == "__main__":

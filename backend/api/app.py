@@ -2,7 +2,7 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 import os
 from scripts.dailyPredictions import get_prediction_by_date, get_latest_prediction, get_prediction_by_season, get_all, \
-    get_ranking_by_season
+    get_ranking_by_season, get_current_season
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -37,6 +37,11 @@ def get_ranking():
     season = request.args.get("season")
     if season:
         return jsonify(get_ranking_by_season(int(season)))
+
+
+@app.route("/season", methods=["GET"])
+def get_season():
+    return jsonify(get_current_season())
 
 
 if __name__ == "__main__":
