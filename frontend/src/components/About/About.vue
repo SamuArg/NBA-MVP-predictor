@@ -28,13 +28,15 @@
               Model Details
             </div>
             <p class="mb-4">
-              Our prediction engine employs a Multi Layer Perceptron model from sk-learn that
+              Our prediction engine employs a Multi Layer Perceptron model using Pytorch that
               calculates MVP share probabilities for each player. The model
               analyzes daily performance metrics to rank the top 10 MVP
               candidates, converting raw MVP share calculations into probability
-              percentages. With a 72% accuracy rate in predicting past MVP
+              percentages. With a 95% accuracy rate in predicting past MVP
               winners, our model has proven to be highly reliable in identifying
-              MVP-caliber performance.
+              MVP-caliber performance. The methodology for calculating the probabilities for each season involved
+              training the model once per season, ensuring that the predicted season was excluded from the training set
+              to prevent any potential bias or 'cheating'.
             </p>
 
             <div class="text-h6 mb-2 mt-4">
