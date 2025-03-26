@@ -102,8 +102,8 @@ def update_mvps(season):
 
 
 def get_current_season():
-    current_year = datetime.now().year
-    current_month = datetime.now().month
+    current_year = datetime.datetime.now().year
+    current_month = datetime.datetime.now().month
 
     if current_month < 10:
         return current_year
