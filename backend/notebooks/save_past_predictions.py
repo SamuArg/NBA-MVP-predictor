@@ -1,8 +1,10 @@
 from scripts.dailyPredictions import make_prediction, save_prediction
 from sklearn.neural_network import MLPRegressor
 from scripts.datasets import create_folds
+from models.Mvp_mlp import Mvp_mlp
 
-model = MLPRegressor(hidden_layer_sizes=(64, 32, 16), max_iter=1000, random_state=42)
+# model = MLPRegressor(hidden_layer_sizes=(64, 32, 16), max_iter=1000, random_state=42)
+model = Mvp_mlp(46, [256, 128, 64, 32, 16], 0.3, 1000, 0.001)
 
 X, y, groups, group_kfold = create_folds()
 

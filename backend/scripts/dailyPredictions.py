@@ -6,6 +6,7 @@ from scripts.Scrap import Scrap
 from dotenv import load_dotenv
 from joblib import load
 from datetime import datetime
+import torch
 
 load_dotenv()
 
@@ -15,7 +16,7 @@ client = MongoClient(MONGO_URI)
 db = client.get_database("predictions")
 pred_collection = db.predictions
 ranking_collection = db.ranking
-MODEL = load('models/model.joblib')
+MODEL = torch.load('models/best_model.pt', weights_only=False)
 
 
 def make_prediction(season, model, normalize=True):

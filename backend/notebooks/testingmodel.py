@@ -3,16 +3,19 @@ from sklearn.ensemble import RandomForestRegressor, AdaBoostRegressor
 from sklearn.neural_network import MLPRegressor
 from scripts.datasets import create_folds
 from joblib import dump
+import torch
 import pandas as pd
+from models.Mvp_mlp import Mvp_mlp
 
 scaled = pd.read_csv("data/processed/scaled.csv")
 
 models = [
-    (RandomForestRegressor(n_estimators=100, n_jobs=-1, random_state=42), "Forest"),
-    (xgb.XGBRegressor(n_estimators=100, n_jobs=-1, random_state=42), "XGBoost"),
-    (AdaBoostRegressor(n_estimators=100, random_state=42), "AdaBoost"),
-    (MLPRegressor(hidden_layer_sizes=(64, 32, 16), max_iter=1000, random_state=42), "MLP_64_32_16"),
-    (MLPRegressor(hidden_layer_sizes=(32, 16, 8), max_iter=1000, random_state=42), "MLP_32_16_8")
+    # (RandomForestRegressor(n_estimators=100, n_jobs=-1, random_state=42), "Forest"),
+    # (xgb.XGBRegressor(n_estimators=100, n_jobs=-1, random_state=42), "XGBoost"),
+    # (AdaBoostRegressor(n_estimators=100, random_state=42), "AdaBoost"),
+    # (MLPRegressor(hidden_layer_sizes=(64, 32, 16), max_iter=1000, random_state=42), "MLP_64_32_16"),
+    # (MLPRegressor(hidden_layer_sizes=(32, 16, 8), max_iter=1000, random_state=42), "MLP_32_16_8"),
+    (Mvp_mlp(46, [256, 128, 64, 32, 16], 0.3, 1000, 0.001), "MVP_MLP"),
 ]
 
 X, y, groups, group_kfold = create_folds()
@@ -49,6 +52,7 @@ for model, name in models:
         actual_player = X_real["Player"].iloc[0]
 
         total += 1
+        print(actual_player, predicted_player)
         if actual_player != predicted_player:
             error += 1
 
@@ -66,4 +70,6 @@ print(f"Retraining the best model ({best_model}) on the entire dataset.")
 X_clean = X.drop(columns=["Year", "Player", "Team"]).reset_index(drop=True)
 best_model.fit(X_clean, y)
 
-dump(best_model, "models/model.joblib")
+torch.save(best_model, "models/best_model.pt")
+
+# dump(best_model, "models/model.joblib")
