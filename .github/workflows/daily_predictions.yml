@@ -2,7 +2,7 @@ name: Daily MVP Prediction
 
 on:
   schedule:
-    - cron: "0 17 * * *"
+    - cron: "0 17 * 9-12,1-4 *"
   workflow_dispatch:
 
 jobs:
