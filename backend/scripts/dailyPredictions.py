@@ -5,7 +5,7 @@ from scripts.Predict import Predict
 from scripts.Scrap import Scrap
 from dotenv import load_dotenv
 from joblib import load
-from datetime import datetime
+import datetime
 import torch
 
 load_dotenv()
