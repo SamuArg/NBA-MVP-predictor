@@ -9,3 +9,6 @@ proba = predict.predict_proba()
 print(proba)
 predict = predict.predict()
 print(predict)
+
+total_params = sum(p.numel() for p in model.parameters())
+print(f"Number of parameters: {total_params}")
