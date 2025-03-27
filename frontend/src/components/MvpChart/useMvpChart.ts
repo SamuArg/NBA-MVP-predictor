@@ -1,4 +1,4 @@
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted } from 'vue';
 import type { MVPResponse } from '@/api/mvps';
 import { getPredictionsSeason } from '@/api/mvps';
 import { useAppStore } from '@/stores/app';
@@ -8,7 +8,6 @@ export function useMvpChart(season: string) {
   const showChart = ref(false);
   const chartOptions = ref({});
   const store = useAppStore();
-  const loading = computed(() => store.loading);
 
   interface EChartsTooltipParams {
     marker: string;
@@ -45,7 +44,6 @@ export function useMvpChart(season: string) {
         const { dates, series, players } = transformData(rawData);
         if (dates.length < 2) {
           showChart.value = false;
-          store.setLoading(false);
           return;
         }
         chartOptions.value = {
@@ -71,11 +69,9 @@ export function useMvpChart(season: string) {
           series,
         };
       }
-      store.setLoading(false);
       showChart.value = true;
     } catch (error) {
       console.error('Error fetching MVP probabilities:', error);
-      store.setLoading(false);
       showChart.value = false;
     }
   });
@@ -86,5 +82,5 @@ export function useMvpChart(season: string) {
     }
   };
 
-  return { showChart, loading, chartOptions, onChartClick };
+  return { showChart, chartOptions, onChartClick };
 }

@@ -7,6 +7,8 @@ export function useChartPrediction(season: string, showRanking: boolean) {
   const store = useAppStore();
   const ranking: Ref<Prediction[]> = ref([]);
   const selectedDate = computed(() => store.selectedDate);
+  const loading = ref(true);
+
 
   const getLastPrediction = async () => {
     const data = await getPredictionsSeason(season);
@@ -35,8 +37,12 @@ export function useChartPrediction(season: string, showRanking: boolean) {
   };
 
   onMounted(async () => {
-    await getLastPrediction();
-    if (showRanking) await getRanking(season);
+    try {
+      await getLastPrediction();
+      if (showRanking) await getRanking(season);
+    } finally {
+      loading.value = false;
+    }
   });
 
   watch(selectedDate, (newDate) => {
@@ -46,5 +52,5 @@ export function useChartPrediction(season: string, showRanking: boolean) {
       getLastPrediction();
     }
   });
-  return { selectedDate, players, ranking };
+  return { selectedDate, players, ranking, loading };
 }
