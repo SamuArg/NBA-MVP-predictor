@@ -5,12 +5,35 @@ from sklearn.preprocessing import MinMaxScaler
 
 
 class Predict:
+    """
+    Makes MVP predictions using a trained model.
+    
+    Attributes:
+        year (int): NBA season year
+        data (pd.DataFrame): Processed player statistics
+        model: Trained model for predictions
+    """
+
     def __init__(self, year: int, model):
+        """
+        Args:
+            year: NBA season year to predict
+            model: Trained model instance
+        """
         self.year = year
         self.data = self.get_data(year)
         self.model = model
 
     def predict(self, normalize=False) -> pd.DataFrame:
+        """
+        Make MVP predictions for the current season.
+
+        Args:
+            normalize (bool): Whether to normalize predictions to percentages
+
+        Returns:
+            pd.DataFrame: Top 10 MVP candidates with predictions
+        """
         X = self.data.drop(columns=["Year", "Player", "Team"]).reset_index(drop=True)
         predictions = self.model.predict(X)
         preds = self.data.copy()

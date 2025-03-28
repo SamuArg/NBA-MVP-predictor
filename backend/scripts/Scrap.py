@@ -5,11 +5,39 @@ import pandas as pd
 import re
 
 class Scrap:
+    """
+    Scrapes NBA statistics from basketball-reference.com.
+    
+    Handles scraping of:
+    - MVP voting results
+    - Team standings
+    - Advanced statistics
+    - Per game statistics
+    
+    Attributes:
+        first_year (int): Start season year
+        last_year (int): End season year
+    """
+
     def __init__(self, first_year, last_year):
+        """
+        Args:
+            first_year: Starting season year
+            last_year: Ending season year
+        """
         self.first_year = first_year
         self.last_year = last_year
     
     def scrap_mvps(self, save=False) -> pd.DataFrame:
+        """
+        Scrape historical MVP voting results.
+
+        Args:
+            save (bool): Save results to CSV if True
+
+        Returns:
+            pd.DataFrame: MVP voting data
+        """
         all_rows = []
         for year in range(self.first_year, self.last_year + 1):
             url = f"https://www.basketball-reference.com/awards/awards_{year}.html"

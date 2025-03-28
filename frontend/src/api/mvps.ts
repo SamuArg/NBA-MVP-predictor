@@ -1,6 +1,6 @@
-const URL = 'https://nba-mvp-predictor.onrender.com/';
+//const URL = 'https://nba-mvp-predictor.onrender.com/';
 
-//const URL = 'http://localhost:5000/';
+const URL = 'http://localhost:5000/';
 
 
 export interface Prediction {
