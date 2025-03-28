@@ -32,4 +32,4 @@ jobs:
           MONGOURI: ${{ secrets.MONGOURI }}
         run: |
           cd backend
-          python -m pytest --cov=backend --cov-report=term
+          python -m pytest --cov
