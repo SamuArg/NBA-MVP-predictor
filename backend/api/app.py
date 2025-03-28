@@ -12,8 +12,10 @@ API_KEY = os.getenv("API_KEY")
 
 app = Flask(__name__)
 
-CORS(app, resources={
-    r"/*": {"origins": ["https://nba-mvp-predictions.netlify.app"]}})
+# CORS(app, resources={
+#    r"/*": {"origins": ["https://nba-mvp-predictions.netlify.app"]}})
+
+CORS(app)
 
 
 @app.route("/mvps", methods=["GET"])
