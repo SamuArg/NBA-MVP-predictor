@@ -9,7 +9,7 @@ def client():
     with app.test_client() as client:
         yield client
 
-@patch("scripts.dailyPredictions.get_prediction_by_date")
+@patch("scripts.database.get_prediction_by_date")
 def test_get_mvps_by_date(mock_get_prediction_by_date, client):
     """Test /mvps?date=YYYY-MM-DD"""
     mock_get_prediction_by_date.return_value = [
@@ -71,7 +71,7 @@ def test_get_mvps_by_date(mock_get_prediction_by_date, client):
     assert data[0]["player"] == "Shai Gilgeous-Alexander"
     assert len(data) == 10
 
-@patch("scripts.dailyPredictions.get_prediction_by_season")
+@patch("scripts.database.get_prediction_by_season")
 def test_get_mvps_by_season(mock_get_prediction_by_season, client):
     """Test /mvps?season=2025"""
     mock_get_prediction_by_season.return_value = [
@@ -193,7 +193,7 @@ def test_get_mvps_by_season(mock_get_prediction_by_season, client):
     assert data[0]["date"] == "2025-03-12"
     assert data[0]["predictions"][0]["player"] == "Shai Gilgeous-Alexander"
 
-@patch("scripts.dailyPredictions.get_latest_prediction")
+@patch("scripts.database.get_latest_prediction")
 def test_get_latest_mvps(mock_get_latest_prediction, client):
     """Test /mvps with no query params"""
     mock_get_latest_prediction.return_value = [
