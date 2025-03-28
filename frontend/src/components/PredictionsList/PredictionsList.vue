@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <v-list v-if="!loading">
+    <v-list>
       <v-list-subheader v-if="selectedDate">
         MVP probabilities for {{ selectedDate }}
       </v-list-subheader>
@@ -16,10 +16,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useMvpPredictions } from '@/components/PredictionsList/useMvpPredictions';
 import type { Prediction } from '@/api/mvps.ts';
 
 defineProps<{ selectedDate: string; players: Prediction[]; }>();
-
-const { loading } = useMvpPredictions();
 </script>
