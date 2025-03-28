@@ -6,7 +6,32 @@ import random
 
 
 class Mvp_mlp(nn.Module):
+    """
+    PyTorch neural network for MVP prediction.
+    
+    Multi-layer perceptron with:
+    - Configurable hidden layers
+    - Dropout for regularization
+    - ReLU activation
+    - Adam optimizer
+    - MSE loss
+    
+    Attributes:
+        model (nn.Sequential): Neural network layers
+        epochs (int): Training epochs
+        learning_rate (float): Learning rate for optimizer
+    """
+
     def __init__(self, input_size, hidden_layers, dropout, epochs, learning_rate, activation=nn.ReLU):
+        """
+        Args:
+            input_size (int): Number of input features
+            hidden_layers (list): Sizes of hidden layers
+            dropout (float): Dropout probability
+            epochs (int): Number of training epochs
+            learning_rate (float): Learning rate
+            activation: Activation function class
+        """
         super(Mvp_mlp, self).__init__()
         layers = []
         prev_size = input_size
