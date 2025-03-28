@@ -22,9 +22,14 @@ jobs:
           cd backend
           pip install -r requirements.txt
 
-      - name: Run Backend Test
+      - name: Install coverage tool
+        run: |
+          cd backend
+          pip install pytest-cov
+
+      - name: Run Backend Test with Coverage
         env:
           MONGOURI: ${{ secrets.MONGOURI }}
         run: |
           cd backend
-          python -m pytest
+          python -m pytest --cov=backend --cov-report=term
