@@ -1,10 +1,8 @@
 from pymongo import MongoClient
-import datetime
 import os
 from scripts.Predict import Predict
 from scripts.Scrap import Scrap
 from dotenv import load_dotenv
-from joblib import load
 import datetime
 import torch
 
@@ -109,6 +107,11 @@ def get_current_season():
         return current_year
     else:
         return current_year + 1
+
+
+def save_current_season_mvps():
+    current_season = get_current_season()
+    update_mvps(current_season)
 
 
 def main():

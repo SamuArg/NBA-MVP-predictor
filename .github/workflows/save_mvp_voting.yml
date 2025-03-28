@@ -1,0 +1,31 @@
+name: Save MVP voting
+
+on:
+  schedule:
+    - cron: "0 0 1 6 *"
+  workflow_dispatch:
+
+jobs:
+  run-mvp-voting:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.13"
+
+      - name: Install Dependencies
+        run: |
+          cd backend
+          pip install -r requirements.txt
+
+      - name: Run MVP voting script
+        env:
+          MONGOURI: ${{ secrets.MONGOURI }}
+        run: |
+          cd backend
+          python -m scripts.save_mvp_voting
