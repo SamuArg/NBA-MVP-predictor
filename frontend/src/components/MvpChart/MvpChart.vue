@@ -3,12 +3,7 @@
     <v-card>
       <v-card-title>MVP Probability Progression</v-card-title>
       <v-card-text>
-        <v-progress-circular
-          v-if="loading"
-          indeterminate
-        />
         <v-chart
-          v-else
           :option="chartOptions"
           :autoresize="true"
           style="height: 400px"
@@ -45,5 +40,5 @@ const props = defineProps<{ season?: string }>();
 
 const seasonValue = computed(() => props.season ?? '2025');
 
-const { showChart, chartOptions, loading, onChartClick } = useMvpChart(seasonValue.value);
+const { showChart, chartOptions, onChartClick } = useMvpChart(seasonValue.value);
 </script>
