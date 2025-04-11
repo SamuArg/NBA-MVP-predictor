@@ -1,4 +1,4 @@
-const URL = 'https://nba-mvp-predictor.onrender.com/';
+const URL = 'http://nba-mvp-predictions.duckdns.org:27182/';
 
 //const URL = 'http://localhost:5000/';
 
