@@ -1,6 +1,8 @@
-const URL = 'https://nba-mvp-predictions.duckdns.org/';
+// const URL = 'https://nba-mvp-predictions.duckdns.org/';
 
 //const URL = 'http://localhost:5000/';
+
+const URL = 'nba-mvp-predictions.pxxl.xyz/';
 
 
 export interface Prediction {
