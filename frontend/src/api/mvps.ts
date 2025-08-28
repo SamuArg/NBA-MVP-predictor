@@ -2,7 +2,7 @@
 
 //const URL = 'http://localhost:5000/';
 
-const URL = 'nba-mvp-predictions.pxxl.xyz/';
+const URL = 'https://nba-mvp-predictions.pxxl.xyz/';
 
 
 export interface Prediction {
