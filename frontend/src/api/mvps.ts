@@ -2,7 +2,7 @@
 
 //const URL = 'http://localhost:5000/';
 
-const URL = 'https://nba-mvp-predictions.pxxl.xyz/';
+const URL = 'https://nba-mvp-predictions-0354ab92b6ca.herokuapp.com/';
 
 
 export interface Prediction {
