@@ -1,7 +1,7 @@
 from .Predict import Predict
 from .Scrap import Scrap
 import datetime
-from .config import MODEL
+from .config import get_model
 from .database import save_mvps, save_prediction
 
 
@@ -17,7 +17,7 @@ def make_prediction(season, model, normalize=True):
     Returns:
         list: Top 10 MVP candidates with predictions
     """
-    predict = Predict(season, model)
+    predict = Predict(season, get_model())
     data = predict.predict(normalize=normalize)
     predictions = [
         {"player": data['Player'][key], "probability": float(data['Prediction'][key]), "team": data['Team'][key]}
@@ -62,7 +62,7 @@ def save_current_season_mvps():
 
 
 def main():
-    predictions = make_prediction(get_current_season(), MODEL)
+    predictions = make_prediction(get_current_season(), get_model())
     save_prediction(predictions, get_current_season(), datetime.date.today().isoformat())
 
 
