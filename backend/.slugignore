@@ -1,0 +1,37 @@
+# Python caches
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+env/
+venv/
+.venv/
+*.egg-info/
+.eggs/
+
+# Jupyter notebooks
+*.ipynb
+.ipynb_checkpoints/
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Tests (if you don’t need them in production)
+tests/
+test/
+
+# Datasets / notebooks / analysis
+data/
+notebooks/
+
+# Large files
+*.tar
+*.zip
+*.gz
+*.csv
