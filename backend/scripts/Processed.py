@@ -97,7 +97,7 @@ class Processed:
             self.processed.loc[:, col] = pd.to_numeric(self.processed[col], errors='coerce')
 
         # Define thresholds before scaling
-        thresholds = {"W/L%": 0.5, "MP": 30.0}
+        thresholds = {"W/L%": 0.5, "MP": 29.0}
 
         # Group by year and scale each season separately
         scaled_dfs = []
