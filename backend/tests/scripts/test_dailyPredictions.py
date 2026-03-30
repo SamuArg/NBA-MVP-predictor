@@ -79,13 +79,16 @@ def test_save_current_season_mvps(mock_update_mvps):
 def test_main(mock_save_prediction, mock_make_prediction):
     mock_predictions = [{"player": "Player1", "probability": 0.8, "team": "Team1"}]
     mock_make_prediction.return_value = mock_predictions
+    real_datetime = datetime.datetime
 
     with patch("scripts.dailyPredictions.get_model") as mock_model:
-        with patch("datetime.date") as mock_date:
-            mock_date.today.return_value = datetime.date(2025, 5, 1)
-            mock_date.today().isoformat.return_value = "2025-05-01"
+        with patch.object(datetime, "datetime", wraps=real_datetime) as mock_datetime:
+            with patch("datetime.date") as mock_date:
+                mock_datetime.now.return_value = real_datetime(2025, 5, 1)
+                mock_date.today.return_value = datetime.date(2025, 5, 1)
+                mock_date.today().isoformat.return_value = "2025-05-01"
 
-            main()
+                main()
 
-            mock_make_prediction.assert_called_once_with(2025, mock_model())
-            mock_save_prediction.assert_called_once_with(mock_predictions, 2025, "2025-05-01")
+                mock_make_prediction.assert_called_once_with(2025, mock_model())
+                mock_save_prediction.assert_called_once_with(mock_predictions, 2025, "2025-05-01")
