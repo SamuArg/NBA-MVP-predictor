@@ -28,12 +28,19 @@ jobs:
       - name: Deploy backend to Heroku
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-          HEROKU_APP_NAME: nba-mvp-predictions-0354ab92b6ca
+          HEROKU_APP_NAME: ${{ vars.HEROKU_APP_NAME || 'nba-mvp-predictions-0354ab92b6ca' }}
         run: |
           if [ -z "$HEROKU_API_KEY" ]; then
             echo "::warning::HEROKU_API_KEY is not set; skipping Heroku deployment."
             exit 0
           fi
+
+          echo "Configured Heroku app: ${HEROKU_APP_NAME}"
+          echo "Apps accessible with this API key:"
+          curl -sS -H "Accept: application/vnd.heroku+json; version=3" \
+            -H "Authorization: Bearer ${HEROKU_API_KEY}" \
+            https://api.heroku.com/apps \
+            | jq -r 'if type == "array" then .[].name else . end' || true
 
           rm -rf "$RUNNER_TEMP/heroku-deploy"
           mkdir -p "$RUNNER_TEMP/heroku-deploy"
@@ -47,4 +54,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git add -A
           git commit -m "Deploy ${GITHUB_SHA::7}"
-          git push --force "https://heroku:${HEROKU_API_KEY}@git.heroku.com/${HEROKU_APP_NAME}.git" main
+          git -c credential.helper='!f() { echo username=heroku; echo "password=${HEROKU_API_KEY}"; }; f' \
+            push --force "https://git.heroku.com/${HEROKU_APP_NAME}.git" main
