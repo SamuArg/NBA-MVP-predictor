@@ -1,0 +1,50 @@
+name: Deploy Backend
+
+# Deploys the backend/ directory to the Heroku app after the backend tests
+# pass on main. The app lives in backend/, so a fresh git repository is built
+# from that directory and pushed to Heroku (Heroku builds from the repo root).
+on:
+  workflow_run:
+    workflows: ["Backend Test"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: heroku-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Deploy backend to Heroku
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+          HEROKU_APP_NAME: nba-mvp-predictions-0354ab92b6ca
+        run: |
+          if [ -z "$HEROKU_API_KEY" ]; then
+            echo "::warning::HEROKU_API_KEY is not set; skipping Heroku deployment."
+            exit 0
+          fi
+
+          rm -rf "$RUNNER_TEMP/heroku-deploy"
+          mkdir -p "$RUNNER_TEMP/heroku-deploy"
+          cp -a backend/. "$RUNNER_TEMP/heroku-deploy/"
+          find "$RUNNER_TEMP/heroku-deploy" -name '__pycache__' -type d -prune -exec rm -rf {} +
+          find "$RUNNER_TEMP/heroku-deploy" -name '.pytest_cache' -type d -prune -exec rm -rf {} +
+
+          cd "$RUNNER_TEMP/heroku-deploy"
+          git init -b main
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add -A
+          git commit -m "Deploy ${GITHUB_SHA::7}"
+          git push --force "https://heroku:${HEROKU_API_KEY}@git.heroku.com/${HEROKU_APP_NAME}.git" main

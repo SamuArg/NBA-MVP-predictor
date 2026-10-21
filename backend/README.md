@@ -109,3 +109,20 @@ python wsgi.py
 - Run tests: `pytest`
 - Daily predictions run via GitHub Actions
 - Model is retrained yearly with new season data
+
+## Deployment
+
+The `backend/` directory is deployed to Heroku automatically by
+`.github/workflows/deploy_backend.yml`. It runs after the **Backend Test**
+workflow succeeds on `main`, then copies `backend/` into a fresh git repository
+and pushes it to the Heroku app (Heroku builds from the repository root).
+
+The workflow needs a Heroku API key as a repository secret:
+
+```sh
+gh secret set HEROKU_API_KEY --repo SamuArg/NBA-MVP-predictor
+```
+
+Get the key from the [Heroku account page](https://dashboard.heroku.com/account)
+(Account Settings → API Key). Without the secret the deploy step logs a warning
+and skips, so pushes never fail on a missing key.
