@@ -2,7 +2,9 @@ name: Daily MVP Prediction
 
 on:
   schedule:
-    - cron: "0 17 * 11-12,1-4 *"
+    # Start in October so opening night is captured. The script exits cleanly
+    # until the first regular-season games have been played.
+    - cron: "0 17 * 10-12,1-4 *"
   workflow_dispatch:
 
 jobs:
