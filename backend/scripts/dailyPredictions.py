@@ -3,6 +3,7 @@ from .Scrap import Scrap
 import datetime
 from .config import get_model
 from .database import save_mvps, save_prediction
+from .seasons import get_current_season
 
 
 def make_prediction(season, model, normalize=True):
@@ -38,22 +39,6 @@ def update_mvps(season):
     mvps = mvps[["Player", "Tm", "Share"]].rename(columns={"Player": "player", "Tm": "team", "Share": "probability"})
     mvps = mvps.to_dict("records")
     save_mvps(mvps, season)
-
-
-def get_current_season():
-    """
-    Get current NBA season based on date.
-    
-    Returns:
-        int: Current season year
-    """
-    current_year = datetime.datetime.now().year
-    current_month = datetime.datetime.now().month
-
-    if current_month < 10:
-        return current_year
-    else:
-        return current_year + 1
 
 
 def save_current_season_mvps():

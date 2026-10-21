@@ -1,40 +1,42 @@
-import { getAllPredictions } from '@/api/mvps.ts';
-import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { computed, onMounted, ref } from 'vue';
+import { useRoute } from 'vue-router';
+import { useAppStore } from '@/stores/app';
+import { ApiError } from '@/api/client';
 
 export function useSideBar() {
-  const seasons = ref<{ title: string; value: string }[]>([]);
-  const fetchAllPredictions = async () => {
+  const store = useAppStore();
+  const route = useRoute();
+
+  const loading = ref(store.seasons === null);
+  const error = ref('');
+
+  const seasons = computed(() => store.seasons?.seasons ?? []);
+
+  const activeSeason = computed(() => {
+    if (route.path !== '/historic') return null;
+    const raw = route.query.season;
+    const value = Number(Array.isArray(raw) ? raw[0] : raw);
+    return Number.isFinite(value) && value > 0 ? value : null;
+  });
+
+  async function loadSeasons() {
+    if (store.seasons) return;
+
+    loading.value = true;
+    error.value = '';
     try {
-      const data = await getAllPredictions();
-      if (data) return data;
-    } catch (error) {
-      console.error('Error fetching MVP probabilities:', error);
-      return null;
+      await store.loadSeasons();
+    } catch (loadError) {
+      error.value =
+        loadError instanceof ApiError
+          ? loadError.message
+          : 'Unable to load seasons.';
+    } finally {
+      loading.value = false;
     }
-  };
+  }
 
-  const getSeasons = async () => {
-    const data = await fetchAllPredictions();
-    if (data) {
-      seasons.value = [
-        ...new Map(
-          data.map(prediction => [prediction.season, {
-            title: String(prediction.season),
-            value: String(prediction.season),
-          }]),
-        ).values(),
-      ].sort((a, b) => Number(b.value) - Number(a.value));
-    }
-  };
+  onMounted(loadSeasons);
 
-  const router = useRouter();
-
-  const navigateToSeason = (season: string) => {
-    router.push({ path: '/historic', query: { season } });
-  };
-
-  onMounted(getSeasons);
-
-  return { seasons, navigateToSeason };
+  return { seasons, loading, error, activeSeason };
 }

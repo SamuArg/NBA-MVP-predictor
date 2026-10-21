@@ -1,56 +1,114 @@
-import { computed, onMounted, ref, type Ref, watch } from 'vue';
-import { getPredictionsSeason, getPredictionsDate, getMvpRanking, type Prediction } from '@/api/mvps.ts';
-import { useAppStore } from '@/stores/app.ts';
+import { computed, ref, toValue, watch, type MaybeRefOrGetter } from 'vue';
+import { useAppStore } from '@/stores/app';
+import type { RankingEntry, SeasonPrediction } from '@/api/mvps';
+import { ApiError } from '@/api/client';
 
-export function useChartPrediction(season: string, showRanking: boolean) {
-  const players: Ref<Prediction[]> = ref([]);
+function errorMessage(error: unknown) {
+  if (error instanceof ApiError) return error.message;
+  return 'Something went wrong while loading the predictions.';
+}
+
+export function useChartPrediction(
+  seasonSource: MaybeRefOrGetter<string | number>,
+  showRankingSource: MaybeRefOrGetter<boolean> = false,
+) {
   const store = useAppStore();
-  const ranking: Ref<Prediction[]> = ref([]);
-  const selectedDate = computed(() => store.selectedDate);
+
+  const season = computed(() => Number(toValue(seasonSource)));
+  const showRanking = computed(() => Boolean(toValue(showRankingSource)));
+
+  const seasonData = ref<SeasonPrediction[]>([]);
+  const ranking = ref<RankingEntry[]>([]);
   const loading = ref(true);
+  const error = ref('');
 
+  const selectedDate = computed(() => store.selectedDate);
 
-  const getLastPrediction = async () => {
-    const data = await getPredictionsSeason(season);
-    if (data) {
-      players.value = data[data.length - 1].predictions;
-      store.setSelectedDate('');
-    }
-  };
+  const latestEntry = computed(
+    () => seasonData.value[seasonData.value.length - 1],
+  );
+  const latestDate = computed(() => latestEntry.value?.date ?? '');
 
-  const fetchPredictions = async (date: string) => {
+  const players = computed(() => {
+    if (!selectedDate.value) return latestEntry.value?.predictions ?? [];
+
+    const entry = seasonData.value.find(
+      (candidate) => candidate.date === selectedDate.value,
+    );
+    return entry?.predictions ?? latestEntry.value?.predictions ?? [];
+  });
+
+  let requestId = 0;
+
+  async function loadRanking(force = false) {
+    if (!showRanking.value || !Number.isInteger(season.value)) return;
+
     try {
-      const data = await getPredictionsDate(date);
-      if (data) players.value = data;
-    } catch (error) {
-      console.error('Error fetching MVP probabilities:', error);
+      ranking.value = await store.loadRanking(season.value, force);
+    } catch {
+      // The predictions remain useful even if the ranking cannot be loaded.
+      ranking.value = [];
     }
-  };
+  }
 
-  const getRanking = async (season: string) => {
-    try {
-      const data = await getMvpRanking(season);
-      if (data) ranking.value = data;
-    } catch (error) {
-      console.error('Error fetching ranking', error);
-    }
-  };
+  async function load(force = false) {
+    const currentRequest = ++requestId;
 
-  onMounted(async () => {
+    loading.value = true;
+    error.value = '';
+    store.setSelectedDate('');
+
     try {
-      await getLastPrediction();
-      if (showRanking) await getRanking(season);
+      const data = await store.loadSeason(season.value, force);
+      if (currentRequest !== requestId) return;
+      seasonData.value = data;
+      await loadRanking(force);
+    } catch (loadError) {
+      if (currentRequest !== requestId) return;
+      seasonData.value = [];
+      ranking.value = [];
+      error.value = errorMessage(loadError);
     } finally {
-      loading.value = false;
+      if (currentRequest === requestId) loading.value = false;
     }
+  }
+
+  watch(
+    season,
+    () => {
+      void load();
+    },
+    { immediate: true },
+  );
+
+  watch(showRanking, (enabled) => {
+    if (enabled) void loadRanking();
   });
 
-  watch(selectedDate, (newDate) => {
-    if (newDate) {
-      fetchPredictions(newDate);
-    } else {
-      getLastPrediction();
+  function retry() {
+    void load(true);
+  }
+
+  function selectDate(date: string) {
+    if (!date) {
+      store.setSelectedDate('');
+      return;
     }
-  });
-  return { selectedDate, players, ranking, loading };
+
+    if (seasonData.value.some((entry) => entry.date === date)) {
+      store.setSelectedDate(date);
+    }
+  }
+
+  return {
+    selectedDate,
+    latestDate,
+    players,
+    ranking,
+    seasonData,
+    loading,
+    error,
+    retry,
+    selectDate,
+  };
 }

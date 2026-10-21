@@ -1,5 +1,11 @@
+import os
+
+from dotenv import load_dotenv
 from pymongo import MongoClient
-from .config import MONGO_URI
+
+load_dotenv()
+
+MONGO_URI = os.getenv("MONGOURI")
 
 client = MongoClient(MONGO_URI)
 db = client.get_database("predictions")
@@ -15,7 +21,7 @@ def save_prediction(predictions, season, date):
         predictions (list): List of prediction dictionaries
         season (int): NBA season year
         date (str): ISO format date string
-    
+
     Raises:
         ValueError: If predictions format is invalid
     """
@@ -51,37 +57,93 @@ def get_prediction_by_date(date):
         date (str): ISO format date string
 
     Returns:
-        list: Predictions for date or error message
+        list | None: Predictions for the date, or None when unavailable
     """
     result = pred_collection.find_one({"date": date})
     if result:
         return result["predictions"]
-    return "Predictions for this date is not available."
+    return None
 
 
 def get_latest_prediction():
-    """Retrieve the latest prediction"""
+    """
+    Retrieve the latest prediction.
+
+    Returns:
+        list | None: Predictions of the most recent day, or None when unavailable
+    """
     result = pred_collection.find_one(sort=[("date", -1)])
     if result:
         return result["predictions"]
-    return "No predictions available."
+    return None
 
 
 def get_prediction_by_season(season):
-    """Retrieve all predictions for a given season, sorted by date (oldest to newest)."""
-    results = pred_collection.find({"season": season}).sort("date", 1)
-    predictions = [{"date": result["date"], "predictions": result["predictions"], "season": result["season"]} for result
-                   in results]
+    """
+    Retrieve all predictions for a given season, sorted by date (oldest to newest).
 
-    if predictions:
-        return predictions
-    return f"No predictions available for Season {season}."
+    Returns:
+        list | None: One entry per date, or None when the season has no predictions
+    """
+    results = pred_collection.find({"season": season}).sort("date", 1)
+    predictions = [
+        {
+            "date": result["date"],
+            "predictions": result["predictions"],
+            "season": result["season"],
+        }
+        for result in results
+    ]
+
+    return predictions or None
 
 
 def get_ranking_by_season(season):
+    """
+    Retrieve the official MVP voting results for a season.
+
+    Returns:
+        list | None: Ranking entries, or None when unavailable
+    """
     results = ranking_collection.find_one({"season": season})
     if results:
         return results["predictions"]
+    return None
+
+
+def get_seasons():
+    """
+    Build a lightweight catalogue of every season that has predictions.
+
+    Returns:
+        list: Season metadata sorted from newest to oldest
+    """
+    pipeline = [
+        {
+            "$group": {
+                "_id": "$season",
+                "predictions": {"$sum": 1},
+                "firstDate": {"$min": "$date"},
+                "lastDate": {"$max": "$date"},
+            }
+        },
+        {"$sort": {"_id": -1}},
+    ]
+
+    rows = list(pred_collection.aggregate(pipeline))
+    ranking_seasons = set(ranking_collection.distinct("season"))
+
+    return [
+        {
+            "season": row["_id"],
+            "predictions": row["predictions"],
+            "firstDate": row["firstDate"],
+            "lastDate": row["lastDate"],
+            "hasRanking": row["_id"] in ranking_seasons,
+        }
+        for row in rows
+        if row["_id"] is not None
+    ]
 
 
 def get_all():

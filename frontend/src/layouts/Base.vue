@@ -1,11 +1,10 @@
 <template>
+  <NavBar />
   <v-main>
-    <NavBar />
     <slot />
-    <router-view />
   </v-main>
 </template>
 
 <script lang="ts" setup>
-//
+// Shared page layout: navigation bar + main content area.
 </script>

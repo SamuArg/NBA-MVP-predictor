@@ -25,6 +25,12 @@ Response format:
 ]
 ```
 
+Missing dates, seasons or rankings return `404` with a JSON body such as:
+
+```json
+{ "error": "No predictions available for season 2027.", "season": 2027 }
+```
+
 ### GET /ranking
 Get MVP voting results.
 
@@ -34,8 +40,38 @@ Query Parameters:
 ### GET /season
 Get current NBA season.
 
+### GET /seasons
+Get the seasons that have predictions, plus the current and latest season.
+This is the lightweight alternative to `/` for building season menus.
+
+```json
+{
+  "current": 2027,
+  "latest": 2026,
+  "seasons": [
+    {
+      "season": 2026,
+      "predictions": 185,
+      "firstDate": "2025-10-24",
+      "lastDate": "2026-04-30",
+      "hasRanking": true
+    }
+  ]
+}
+```
+
+### GET /health
+Simple uptime probe that does not touch the database.
+
 ### GET /
 Get all historical predictions.
+
+## CORS
+
+The production Netlify origin is always allowed. Extra origins can be added
+with the `CORS_ORIGINS` environment variable as a comma-separated list. Local
+development origins (`localhost:3000` and `localhost:5173`) are included by
+default.
 
 ## Project Structure
 

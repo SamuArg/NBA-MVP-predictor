@@ -1,22 +1,30 @@
 <template>
-  <v-container>
-    <v-list>
-      <v-list-subheader v-if="selectedDate">
-        MVP probabilities for {{ selectedDate }}
-      </v-list-subheader>
-      <v-list-subheader v-else>
-        Latest MVP probabilities
-      </v-list-subheader>
-      <PlayerList
-        :players="players"
-        :proba="true"
-      />
-    </v-list>
-  </v-container>
+  <v-list>
+    <v-list-subheader>
+      <template v-if="selectedDate">
+        Predictions for {{ formatDate(selectedDate) }}
+      </template>
+      <template v-else>
+        Latest predictions<template v-if="latestDate">
+          ({{ formatDate(latestDate) }})
+        </template>
+      </template>
+    </v-list-subheader>
+
+    <PlayerList
+      :players="players"
+      :proba="true"
+    />
+  </v-list>
 </template>
 
 <script lang="ts" setup>
 import type { Prediction } from '@/api/mvps.ts';
+import { formatDate } from '@/utils/format';
 
-defineProps<{ selectedDate: string; players: Prediction[]; }>();
+defineProps<{
+  selectedDate: string;
+  players: Prediction[];
+  latestDate?: string;
+}>();
 </script>

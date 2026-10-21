@@ -64,6 +64,18 @@ export default defineConfig({
   },
   server: {
     port: 3000,
+    // Set VITE_API_URL=/api to use the proxy during local development.
+    // This avoids browser CORS restrictions when running against the
+    // deployed backend before it has been redeployed with the new origins.
+    proxy: {
+      '/api': {
+        target:
+          process.env.VITE_PROXY_TARGET ||
+          'https://nba-mvp-predictions-0354ab92b6ca.herokuapp.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''),
+      },
+    },
   },
   css: {
     preprocessorOptions: {
