@@ -117,6 +117,13 @@ The `backend/` directory is deployed to Heroku automatically by
 workflow succeeds on `main`, then copies `backend/` into a fresh git repository
 and pushes it to the Heroku app (Heroku builds from the repository root).
 
+The app is a container app, so `heroku.yml` tells Heroku to build the image from
+`Dockerfile`. The web process uses the Dockerfile `CMD`
+(`gunicorn -w 1 -b 0.0.0.0:$PORT wsgi:app`).
+
+The app lives at `https://nba-mvp-predictions-0354ab92b6ca.herokuapp.com/`
+(Heroku assigned that generated domain to the app named `nba-mvp-predictions`).
+
 The workflow needs a Heroku API key as a repository secret:
 
 ```sh

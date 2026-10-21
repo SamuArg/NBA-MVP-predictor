@@ -1,0 +1,7 @@
+# Build manifest for the Heroku container app (nba-mvp-predictions).
+# The app is configured for git-based Docker deploys, so pushes build the
+# image described here. The web process uses the CMD from the Dockerfile,
+# which runs gunicorn bound to $PORT.
+build:
+  docker:
+    web: Dockerfile
