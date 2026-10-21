@@ -53,9 +53,26 @@
           {{ formatSeasonLabel(season) }}.
         </v-alert>
 
+        <v-alert
+          v-if="rankingWinner"
+          type="success"
+          variant="tonal"
+          icon="mdi-trophy"
+          class="mb-6"
+        >
+          <div class="text-h6">
+            {{ formatSeasonLabel(season) }} MVP:
+            {{ rankingWinner.player }} ({{ rankingWinner.team }})
+          </div>
+          <div class="text-body-2">
+            The official voting results are shown below alongside the model's
+            final predictions.
+          </div>
+        </v-alert>
+
         <div class="d-flex flex-wrap align-center ga-3 mb-4">
           <h1 class="text-h4">
-            {{ isFallback ? 'Latest MVP race' : 'Current MVP race' }}
+            {{ pageTitle }}
           </h1>
           <v-chip
             color="primary"
@@ -81,7 +98,8 @@
 
         <ChartPrediction
           :season="season"
-          :show-ranking="false"
+          :show-ranking="true"
+          :final="Boolean(rankingWinner)"
         />
       </template>
     </v-container>
@@ -93,7 +111,7 @@ import Base from '@/layouts/Base.vue';
 import { useAppStore } from '@/stores/app';
 import { formatDate, formatSeasonLabel, formatTrackedDays } from '@/utils/format';
 import { ApiError } from '@/api/client';
-import type { SeasonInfo } from '@/api/mvps';
+import type { RankingEntry, SeasonInfo } from '@/api/mvps';
 import { computed, onMounted, ref } from 'vue';
 
 const store = useAppStore();
@@ -103,6 +121,7 @@ const error = ref('');
 const currentSeason = ref<number | null>(null);
 const season = ref<number | null>(null);
 const availableSeasons = ref<SeasonInfo[]>([]);
+const officialRanking = ref<RankingEntry[]>([]);
 
 const isFallback = computed(
   () =>
@@ -110,6 +129,13 @@ const isFallback = computed(
     season.value !== null &&
     currentSeason.value !== season.value,
 );
+
+const rankingWinner = computed(() => officialRanking.value[0] ?? null);
+
+const pageTitle = computed(() => {
+  if (rankingWinner.value) return 'Final MVP results';
+  return isFallback.value ? 'Latest MVP race' : 'Current MVP race';
+});
 
 const seasonInfo = computed(() =>
   availableSeasons.value.find((entry) => entry.season === season.value),
@@ -124,6 +150,8 @@ async function load(force = false) {
   loading.value = true;
   error.value = '';
 
+  officialRanking.value = [];
+
   try {
     const catalogue = await store.loadSeasons(force);
     availableSeasons.value = catalogue.seasons;
@@ -136,10 +164,18 @@ async function load(force = false) {
     }
 
     const latest = catalogue.latest ?? Math.max(...seasonsWithData);
-    season.value =
+    const selectedSeason =
       catalogue.current !== null && seasonsWithData.includes(catalogue.current)
         ? catalogue.current
         : latest;
+    season.value = selectedSeason;
+
+    try {
+      officialRanking.value = await store.loadRanking(selectedSeason, force);
+    } catch {
+      // Keep the predictions visible if the official results cannot load.
+      officialRanking.value = [];
+    }
   } catch (loadError) {
     error.value = messageFor(loadError);
     season.value = null;

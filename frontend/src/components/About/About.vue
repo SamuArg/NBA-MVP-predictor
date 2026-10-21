@@ -18,7 +18,8 @@
               The NBA MVP Predictor uses machine learning to forecast the
               NBA's Most Valuable Player award winner. It combines historical
               voting results with player and team statistics to rank the top
-              ten candidates. The home page shows the current race (or the
+              ten candidates. The home page shows the current race, a completed
+              season's official MVP results when voting is available (or the
               latest season with data when the new season has not started
               yet), and the side menu opens any season back to 1981.
             </p>
@@ -63,8 +64,8 @@
                 rankings.
               </li>
               <li class="mb-2">
-                Historical pages also show the official MVP voting shares for
-                comparison with the model's predictions.
+                Completed seasons show the official MVP voting shares next to
+                the model's final predictions.
               </li>
               <li>
                 Probabilities are estimates, not guarantees. Early-season

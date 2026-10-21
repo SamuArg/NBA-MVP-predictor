@@ -11,6 +11,7 @@ the current race. Every season back to 1981 can be explored in the frontend.
 
 - Daily MVP probability predictions for the top 10 candidates
 - Interactive probability progression chart; click a date to see that day's rankings
+- Home page surfaces official MVP results once voting is available
 - Season browser with official MVP voting shares for comparison
 - Graceful fallback to the latest available season when the new season has not
   produced predictions yet

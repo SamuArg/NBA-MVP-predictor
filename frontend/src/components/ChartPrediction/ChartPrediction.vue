@@ -63,6 +63,7 @@
                 :selected-date="selectedDate"
                 :players="players"
                 :latest-date="latestDate"
+                :final="final"
               />
             </v-col>
             <v-col
@@ -90,9 +91,11 @@ const props = withDefaults(
   defineProps<{
     season: string | number;
     showRanking?: boolean;
+    final?: boolean;
   }>(),
   {
     showRanking: false,
+    final: false,
   },
 );
 
