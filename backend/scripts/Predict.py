@@ -1,5 +1,5 @@
 import pandas as pd
-from scripts.Processed import Processed
+from scripts.Processed import Processed, align_model_features
 from scripts.Scrap import Scrap
 from sklearn.preprocessing import MinMaxScaler
 
@@ -34,7 +34,7 @@ class Predict:
         Returns:
             pd.DataFrame: Top 10 MVP candidates with predictions
         """
-        X = self.data.drop(columns=["Year", "Player", "Team"]).reset_index(drop=True)
+        X = align_model_features(self.data).reset_index(drop=True)
         predictions = self.model.predict(X)
         preds = self.data.copy()
 

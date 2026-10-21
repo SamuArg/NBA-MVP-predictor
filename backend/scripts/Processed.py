@@ -2,6 +2,25 @@ import pandas as pd
 from sklearn.preprocessing import StandardScaler
 
 
+# Feature order the trained model expects. It is the column order produced by
+# process_without_mvps for a complete season (see data/processed/mvps.csv).
+# Basketball Reference omits the box plus/minus columns (OBPM, DBPM, BPM, VORP)
+# until a season is a few games old, so predictions need to fill them in.
+MODEL_FEATURES = [
+    "Age", "G", "PER", "TS%", "3PAr", "FTr", "ORB%", "DRB%", "TRB%",
+    "AST%", "STL%", "BLK%", "TOV%", "USG%", "OWS", "DWS", "WS/48",
+    "OBPM", "DBPM", "BPM", "VORP", "W/L%", "seed", "MP", "FG", "FGA",
+    "FG%", "3P", "3PA", "3P%", "2P", "2PA", "2P%", "eFG%", "FT", "FTA",
+    "FT%", "ORB", "DRB", "TRB", "AST", "STL", "BLK", "TOV", "PF", "PTS",
+]
+
+
+def align_model_features(data: pd.DataFrame) -> pd.DataFrame:
+    """Return the model's feature matrix with any early-season columns filled in."""
+    features = data.drop(columns=["Year", "Player", "Team"])
+    return features.reindex(columns=MODEL_FEATURES, fill_value=0.0)
+
+
 class Processed:
     def __init__(self, mvps: pd.DataFrame, standings: pd.DataFrame, advanced: pd.DataFrame, per_game: pd.DataFrame):
         self.mvps = mvps
