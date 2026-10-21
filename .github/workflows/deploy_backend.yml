@@ -28,19 +28,25 @@ jobs:
       - name: Deploy backend to Heroku
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-          HEROKU_APP_NAME: ${{ vars.HEROKU_APP_NAME || 'nba-mvp-predictions-0354ab92b6ca' }}
+          HEROKU_APP_NAME: ${{ vars.HEROKU_APP_NAME || 'nba-mvp-predictions' }}
         run: |
           if [ -z "$HEROKU_API_KEY" ]; then
             echo "::warning::HEROKU_API_KEY is not set; skipping Heroku deployment."
             exit 0
           fi
 
+          heroku_api() {
+            curl -sS -H "Accept: application/vnd.heroku+json; version=3" \
+              -H "Authorization: Bearer ${HEROKU_API_KEY}" "$@"
+          }
+
           echo "Configured Heroku app: ${HEROKU_APP_NAME}"
-          echo "Apps accessible with this API key:"
-          curl -sS -H "Accept: application/vnd.heroku+json; version=3" \
-            -H "Authorization: Bearer ${HEROKU_API_KEY}" \
-            https://api.heroku.com/apps \
-            | jq -r 'if type == "array" then .[].name else . end' || true
+          echo "Accessible Heroku apps and their domains:"
+          for app in $(heroku_api https://api.heroku.com/apps | jq -r 'if type == "array" then .[].name else empty end'); do
+            echo "--- ${app} ---"
+            heroku_api "https://api.heroku.com/apps/${app}" | jq -r '"web_url: \(.web_url)\ncreated: \(.created_at)"'
+            heroku_api "https://api.heroku.com/apps/${app}/domains" | jq -r 'if type == "array" then .[].hostname else . end'
+          done
 
           rm -rf "$RUNNER_TEMP/heroku-deploy"
           mkdir -p "$RUNNER_TEMP/heroku-deploy"
