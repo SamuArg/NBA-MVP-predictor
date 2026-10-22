@@ -157,7 +157,7 @@ python wsgi.py
 - Daily predictions run via GitHub Actions
 - Backfill explanations with `python -m scripts.backfill_explanations`
   (optionally `--season 2026` or `--dry-run`), or run the
-  **Backfill SHAP explanations** workflow
+  **Backfill SHAP explanations** workflow (it has an optional dry-run input)
 - Model is retrained yearly with new season data
 
 ## Deployment

@@ -7,6 +7,10 @@ on:
         description: "Optional season year to backfill (e.g. 2026; defaults to completed seasons)"
         required: false
         default: ""
+      dry_run:
+        description: "Recompute and compare without writing to MongoDB"
+        type: boolean
+        default: false
 
 jobs:
   backfill:
@@ -30,10 +34,14 @@ jobs:
         env:
           MONGOURI: ${{ secrets.MONGOURI }}
           SEASON: ${{ inputs.season }}
+          DRY_RUN: ${{ inputs.dry_run }}
         run: |
           cd backend
+          args=()
           if [ -n "$SEASON" ]; then
-            python -m scripts.backfill_explanations --season "$SEASON"
-          else
-            python -m scripts.backfill_explanations
+            args+=(--season "$SEASON")
           fi
+          if [ "$DRY_RUN" = "true" ]; then
+            args+=(--dry-run)
+          fi
+          python -m scripts.backfill_explanations "${args[@]}"
