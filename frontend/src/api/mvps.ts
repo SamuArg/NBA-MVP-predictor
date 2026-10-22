@@ -32,6 +32,25 @@ export interface SeasonCatalogue {
   seasons: SeasonInfo[];
 }
 
+export interface FeatureContribution {
+  name: string;
+  label: string;
+  value: number | null;
+  displayValue: string;
+  contribution: number;
+}
+
+export interface PlayerExplanation {
+  season: number;
+  date: string;
+  player: string;
+  team: string;
+  probability: number;
+  baseValue: number;
+  outputValue: number;
+  features: FeatureContribution[];
+}
+
 function asArray(payload: unknown): unknown[] {
   return Array.isArray(payload) ? payload : [];
 }
@@ -44,6 +63,12 @@ function toNumber(value: unknown, fallback = 0): number {
 function toPositiveInteger(value: unknown): number | null {
   const numberValue = toNumber(value, Number.NaN);
   return Number.isInteger(numberValue) && numberValue > 0 ? numberValue : null;
+}
+
+function toNullableNumber(value: unknown): number | null {
+  if (value === null || value === undefined) return null;
+  const numberValue = typeof value === 'number' ? value : Number(value);
+  return Number.isFinite(numberValue) ? numberValue : null;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -100,6 +125,36 @@ function normalizeSeasonCatalogue(payload: unknown): SeasonCatalogue | null {
     current: toPositiveInteger(payload.current),
     latest,
     seasons,
+  };
+}
+
+function normalizeExplanation(payload: unknown): PlayerExplanation | null {
+  if (!isRecord(payload)) return null;
+
+  const features: FeatureContribution[] = asArray(payload.features)
+    .filter(isRecord)
+    .map((entry) => ({
+      name: String(entry.name ?? ''),
+      label: String(entry.label ?? entry.name ?? ''),
+      value: toNullableNumber(entry.value),
+      displayValue: String(entry.displayValue ?? '—'),
+      contribution: toNumber(entry.contribution),
+    }))
+    .filter((entry) => entry.name.length > 0);
+
+  const date = String(payload.date ?? '');
+  const player = String(payload.player ?? '');
+  if (!date || !player || features.length === 0) return null;
+
+  return {
+    season: toNumber(payload.season),
+    date,
+    player,
+    team: String(payload.team ?? ''),
+    probability: toNumber(payload.probability),
+    baseValue: toNumber(payload.baseValue),
+    outputValue: toNumber(payload.outputValue),
+    features,
   };
 }
 
@@ -171,6 +226,32 @@ export const getMvpRanking = async (
       .filter((entry) => entry.player.length > 0);
   } catch (error) {
     if (error instanceof ApiError && error.status === 404) return [];
+    throw error;
+  }
+};
+
+/**
+ * Get the precomputed SHAP explanation for one player on one date.
+ *
+ * Returns null when explanations were not stored for that date (older
+ * predictions) or the backend has not been deployed with the endpoint yet.
+ */
+export const getExplanation = async (
+  season: number,
+  date: string,
+  player: string,
+): Promise<PlayerExplanation | null> => {
+  const params = new URLSearchParams({
+    season: String(season),
+    date,
+    player,
+  });
+
+  try {
+    const payload = await fetchJson<unknown>(`explain?${params.toString()}`);
+    return normalizeExplanation(payload);
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) return null;
     throw error;
   }
 };

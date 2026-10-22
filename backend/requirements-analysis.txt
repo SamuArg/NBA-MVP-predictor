@@ -1,0 +1,8 @@
+# Dependencies needed to generate SHAP explanations in the daily prediction
+# job and the backfill script.  The Flask API only reads precomputed values,
+# so the production Docker image intentionally installs requirements.txt only.
+-r requirements.txt
+# CI and the GitHub Actions jobs use Python 3.13.  Older local interpreters
+# need the last shap release that still supports them.
+shap==0.54.1; python_version >= "3.12"
+shap==0.46.0; python_version < "3.12"

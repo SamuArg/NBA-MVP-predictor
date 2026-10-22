@@ -4,6 +4,8 @@ import {
   getSeasons,
   getSeasonPredictions,
   getMvpRanking,
+  getExplanation,
+  type PlayerExplanation,
   type RankingEntry,
   type SeasonCatalogue,
   type SeasonPrediction,
@@ -27,6 +29,9 @@ export const useAppStore = defineStore('app', () => {
   const seasonsLoadedAt = ref(0);
   const seasonCache = ref<Record<number, CacheEntry<SeasonPrediction[]>>>({});
   const rankingCache = ref<Record<number, CacheEntry<RankingEntry[]>>>({});
+  const explanationCache = ref<
+    Record<string, CacheEntry<PlayerExplanation | null>>
+  >({});
 
   let seasonsRequest: Promise<SeasonCatalogue> | null = null;
 
@@ -89,14 +94,34 @@ export const useAppStore = defineStore('app', () => {
     return data;
   }
 
+  async function loadExplanation(
+    season: number,
+    date: string,
+    player: string,
+    force = false,
+  ): Promise<PlayerExplanation | null> {
+    const key = `${season}|${date}|${player}`;
+    const cached = explanationCache.value[key];
+    if (!force && isFresh(cached)) return cached.data;
+
+    const data = await getExplanation(season, date, player);
+    explanationCache.value = {
+      ...explanationCache.value,
+      [key]: { data, loadedAt: Date.now() },
+    };
+    return data;
+  }
+
   return {
     selectedDate,
     seasons,
     seasonCache,
     rankingCache,
+    explanationCache,
     setSelectedDate,
     loadSeasons,
     loadSeason,
     loadRanking,
+    loadExplanation,
   };
 });

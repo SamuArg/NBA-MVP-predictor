@@ -3,7 +3,8 @@
     <v-card>
       <v-card-title>MVP Probability Progression</v-card-title>
       <v-card-subtitle v-if="rangeLabel">
-        {{ rangeLabel }} · click a date to see that day's ranking
+        {{ rangeLabel }} · click a date for that day's ranking, or a player's
+        line for a SHAP explanation
       </v-card-subtitle>
       <v-card-text>
         <v-chart
@@ -38,7 +39,10 @@
 
 <script lang="ts" setup>
 import VChart from 'vue-echarts';
-import { useMvpChart } from '@/components/MvpChart/useMvpChart';
+import {
+  useMvpChart,
+  type ChartSelection,
+} from '@/components/MvpChart/useMvpChart';
 import type { SeasonPrediction } from '@/api/mvps';
 import * as echarts from 'echarts/core';
 import { CanvasRenderer } from 'echarts/renderers';
@@ -66,15 +70,28 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   'select-date': [date: string];
+  explain: [selection: ChartSelection];
 }>();
 
-const { showChart, chartOptions, rangeLabel, legendItems, getDateFromEvent } =
-  useMvpChart(
-    () => props.data,
-    () => props.selectedDate ?? '',
-  );
+const {
+  showChart,
+  chartOptions,
+  rangeLabel,
+  legendItems,
+  getDateFromEvent,
+  getSelectionFromEvent,
+} = useMvpChart(
+  () => props.data,
+  () => props.selectedDate ?? '',
+);
 
 function handleChartClick(params: unknown) {
+  const selection = getSelectionFromEvent(params);
+  if (selection) {
+    emit('explain', selection);
+    return;
+  }
+
   const date = getDateFromEvent(params);
   if (date) emit('select-date', date);
 }

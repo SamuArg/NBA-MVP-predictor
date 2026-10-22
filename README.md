@@ -11,6 +11,7 @@ the current race. Every season back to 1981 can be explored in the frontend.
 
 - Daily MVP probability predictions for the top 10 candidates
 - Interactive probability progression chart; click a date to see that day's rankings
+- Click a player row or a chart point to see a SHAP explanation of the model's raw score
 - Home page surfaces official MVP results once voting is available
 - Season browser with official MVP voting shares for comparison
 - Graceful fallback to the latest available season when the new season has not
@@ -54,6 +55,7 @@ You can see a live demo of the project
 The API exposes:
 
 - `GET /mvps` (all optional: `?date=YYYY-MM-DD`, `?season=YYYY`)
+- `GET /explain?season=YYYY&date=YYYY-MM-DD&player=NAME` (precomputed SHAP values)
 - `GET /ranking?season=YYYY`
 - `GET /season`
 - `GET /seasons`
@@ -100,11 +102,12 @@ against both the previous API (which returned message strings for missing
 seasons) and the current API (which returns JSON 404s), so the two services can
 be deployed in either order. The `/seasons` endpoint is optional from the
 frontend's point of view: when it is unavailable, the app falls back to the
-legacy `/` endpoint.
+legacy `/` endpoint. SHAP explanations are precomputed by the daily job, so
+`/explain` is optional as well; when it is unavailable or a date was stored
+without an explanation, the dialog reports that the explanation is not stored.
 
 ## Features to add
 
-- Show SHAP forces to understand what stats impact the prediction the most
 - Update season to season automatically
 
 ## License

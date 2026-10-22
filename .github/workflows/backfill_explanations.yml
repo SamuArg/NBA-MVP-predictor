@@ -1,0 +1,39 @@
+name: Backfill SHAP explanations
+
+on:
+  workflow_dispatch:
+    inputs:
+      season:
+        description: "Optional season year to backfill (e.g. 2026; defaults to completed seasons)"
+        required: false
+        default: ""
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.13"
+
+      - name: Install Dependencies
+        run: |
+          cd backend
+          pip install -r requirements-analysis.txt
+
+      - name: Backfill Explanations
+        env:
+          MONGOURI: ${{ secrets.MONGOURI }}
+          SEASON: ${{ inputs.season }}
+        run: |
+          cd backend
+          if [ -n "$SEASON" ]; then
+            python -m scripts.backfill_explanations --season "$SEASON"
+          else
+            python -m scripts.backfill_explanations
+          fi

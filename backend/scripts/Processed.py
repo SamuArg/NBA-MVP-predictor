@@ -28,6 +28,9 @@ class Processed:
         self.advanced = advanced
         self.per_game = per_game
         self.processed = None
+        # Unscaled rows that survived the season filters, kept in the same order
+        # as ``processed`` so predictions can display real stat values.
+        self.raw_processed = None
 
     def remove_divisions(self) -> pd.DataFrame:
         self.standings = self.standings[self.standings.Team.str.contains('Division') == False]
@@ -120,6 +123,7 @@ class Processed:
 
         # Group by year and scale each season separately
         scaled_dfs = []
+        raw_dfs = []
         for year in self.processed['Year'].unique():
             year_data = self.processed[self.processed['Year'] == year]
 
@@ -151,9 +155,11 @@ class Processed:
             )
             year_scaled = year_scaled[mask]
             scaled_dfs.append(year_scaled)
+            raw_dfs.append(year_data.loc[year_scaled.index])
 
         # Combine all scaled years
         self.processed = pd.concat(scaled_dfs).reset_index(drop=True)
+        self.raw_processed = pd.concat(raw_dfs).reset_index(drop=True)
         return self.processed
 
     def process_with_mvps(self) -> pd.DataFrame:

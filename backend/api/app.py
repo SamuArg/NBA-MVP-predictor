@@ -55,6 +55,14 @@ def add_cache_headers(response):
     if request.method == "GET":
         if request.path in ("/seasons", "/season", "/ranking"):
             response.headers["Cache-Control"] = "public, max-age=60"
+        elif request.path == "/explain":
+            # Successful explanations never change; do not cache "unavailable"
+            # responses so a later backfill is visible immediately.
+            response.headers["Cache-Control"] = (
+                "public, max-age=3600"
+                if response.status_code == 200
+                else "no-store"
+            )
         elif request.path == "/health":
             response.headers["Cache-Control"] = "no-store"
     return response
@@ -88,6 +96,35 @@ def get_mvps():
     if latest is None:
         return error_response("No predictions available.")
     return jsonify(latest)
+
+
+@app.route("/explain", methods=["GET"])
+def get_explanation():
+    date = request.args.get("date")
+    player = request.args.get("player")
+    season = request.args.get("season")
+
+    if not date or not player:
+        return error_response(
+            "Both date and player query parameters are required.", 400
+        )
+
+    season_number = None
+    if season is not None:
+        season_number = parse_season(season)
+        if season_number is None:
+            return error_response("Season must be a number.", 400)
+
+    explanation = database.get_explanation(date, player, season_number)
+    if explanation is None:
+        return error_response(
+            f"No explanation is available for {player} on {date}.",
+            date=date,
+            player=player,
+            season=season_number,
+        )
+
+    return jsonify({"season": season_number, "date": date, **explanation})
 
 
 @app.route("/", methods=["GET"])
