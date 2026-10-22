@@ -1,9 +1,15 @@
-"""Backfill SHAP explanations for the final date of completed seasons.
+"""Backfill SHAP explanations for the final date of post-training seasons.
 
 Older predictions were stored without their feature snapshots, so mid-season
 dates cannot be explained exactly.  The final date of a completed season can
 be recomputed from Basketball Reference's final season totals; we only attach
 the explanation when the recomputed top 10 matches the stored prediction.
+
+Only seasons after the production model's training cutoff are eligible.  Rows
+stored for earlier seasons were produced by the leave-one-season-out training
+pipeline, so current-model SHAP values would describe an in-sample fit rather
+than the prediction that was stored.  Those dates keep the unavailable
+fallback in the UI.
 
 An explicit ``--season`` may target the current season's latest stored date
 too.  The same top-10 comparison still guards against attaching an explanation
@@ -23,6 +29,13 @@ from .seasons import get_current_season
 # Percentage points.  A tight tolerance makes sure the explanation describes
 # the prediction that is actually stored.
 PROBABILITY_TOLERANCE = 0.05
+
+# The deployed model is trained on all seasons through 2024.  Historical rows
+# for those seasons come from the leave-one-season-out training pipeline, so
+# current-model SHAP values would be in-sample.  Bump this when the production
+# model is retrained through a later season.
+MODEL_TRAINING_LAST_SEASON = 2024
+MIN_EXPLAINABLE_SEASON = MODEL_TRAINING_LAST_SEASON + 1
 
 
 def _predictions_match(stored, computed):
@@ -50,12 +63,16 @@ def _predictions_match(stored, computed):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Backfill SHAP explanations for completed seasons."
+        description="Backfill SHAP explanations for post-training seasons."
     )
     parser.add_argument(
         "--season",
         type=int,
-        help="Only backfill this season year (e.g. 2026 or the current season).",
+        help=(
+            "Only backfill this season year (e.g. 2026). Seasons through "
+            f"{MODEL_TRAINING_LAST_SEASON} are not eligible because they "
+            "were part of the current model's training data."
+        ),
     )
     parser.add_argument(
         "--dry-run",
@@ -63,6 +80,13 @@ def main():
         help="Recompute and compare without writing to MongoDB.",
     )
     args = parser.parse_args()
+
+    if args.season is not None and args.season < MIN_EXPLAINABLE_SEASON:
+        parser.error(
+            f"--season {args.season} is a training-era season: the current "
+            f"model was trained through {MODEL_TRAINING_LAST_SEASON}, so its "
+            "SHAP values would be in-sample. Choose a post-training season."
+        )
 
     current_season = get_current_season()
     available = [
@@ -74,10 +98,22 @@ def main():
     if args.season is not None:
         targets = [season for season in available if season == args.season]
     else:
-        targets = [season for season in available if season < current_season]
+        skipped = [
+            season for season in available if season < MIN_EXPLAINABLE_SEASON
+        ]
+        if skipped:
+            print(
+                f"Skipping {len(skipped)} training-era season(s) "
+                f"(the model is trained through {MODEL_TRAINING_LAST_SEASON})."
+            )
+        targets = [
+            season
+            for season in available
+            if MIN_EXPLAINABLE_SEASON <= season < current_season
+        ]
 
     if not targets:
-        print("No seasons are available to backfill.")
+        print("No eligible post-training seasons are available to backfill.")
         return
 
     model = get_model()
