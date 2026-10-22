@@ -51,6 +51,7 @@
           :data="seasonData"
           :selected-date="selectedDate"
           @select-date="selectDate"
+          @explain="openExplanation"
         />
 
         <v-container>
@@ -64,6 +65,7 @@
                 :players="players"
                 :latest-date="latestDate"
                 :final="final"
+                @explain="openExplanation"
               />
             </v-col>
             <v-col
@@ -80,10 +82,19 @@
         </v-container>
       </template>
     </template>
+
+    <PlayerExplanation
+      v-model="explanationOpen"
+      :season="Number(season)"
+      :date="explanationTarget?.date ?? ''"
+      :player="explanationTarget?.player ?? ''"
+      :probability="explanationTarget?.probability ?? 0"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue';
 import { useChartPrediction } from '@/components/ChartPrediction/useChartPrediction.ts';
 import { formatSeasonLabel } from '@/utils/format';
 
@@ -113,4 +124,19 @@ const {
   () => props.season,
   () => props.showRanking,
 );
+
+interface ExplanationTarget {
+  date: string;
+  player: string;
+  probability: number;
+}
+
+const explanationOpen = ref(false);
+const explanationTarget = ref<ExplanationTarget | null>(null);
+
+function openExplanation(target: ExplanationTarget) {
+  selectDate(target.date);
+  explanationTarget.value = target;
+  explanationOpen.value = true;
+}
 </script>

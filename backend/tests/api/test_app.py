@@ -38,6 +38,23 @@ SEASONS = [
     }
 ]
 
+EXPLANATION = {
+    "player": "Shai Gilgeous-Alexander",
+    "team": "OKC",
+    "probability": 32.63,
+    "baseValue": 0.1,
+    "outputValue": 0.7,
+    "features": [
+        {
+            "name": "PTS",
+            "label": "Points / game",
+            "value": 31.2,
+            "displayValue": "31.2",
+            "contribution": 0.2,
+        }
+    ],
+}
+
 
 @pytest.fixture
 def client():
@@ -128,6 +145,77 @@ def test_get_latest_mvps_not_found(mock_get_latest_prediction, client):
     response = client.get("/mvps")
 
     assert response.status_code == 404
+
+
+@patch("scripts.database.get_explanation")
+def test_get_explanation(mock_get_explanation, client):
+    """Test /explain?season=2025&date=...&player=..."""
+    mock_get_explanation.return_value = EXPLANATION
+
+    response = client.get(
+        "/explain?season=2025&date=2025-04-30"
+        "&player=Shai%20Gilgeous-Alexander"
+    )
+
+    assert response.status_code == 200
+    payload = response.get_json()
+    assert payload["season"] == 2025
+    assert payload["date"] == "2025-04-30"
+    assert payload["player"] == "Shai Gilgeous-Alexander"
+    assert payload["features"][0]["name"] == "PTS"
+    assert response.headers["Cache-Control"] == "public, max-age=3600"
+    mock_get_explanation.assert_called_once_with(
+        "2025-04-30", "Shai Gilgeous-Alexander", 2025
+    )
+
+
+@patch("scripts.database.get_explanation")
+def test_get_explanation_without_season(mock_get_explanation, client):
+    """The season parameter is optional."""
+    mock_get_explanation.return_value = EXPLANATION
+
+    response = client.get(
+        "/explain?date=2025-04-30&player=Shai%20Gilgeous-Alexander"
+    )
+
+    assert response.status_code == 200
+    assert response.get_json()["season"] is None
+    mock_get_explanation.assert_called_once_with(
+        "2025-04-30", "Shai Gilgeous-Alexander", None
+    )
+
+
+@patch("scripts.database.get_explanation")
+def test_get_explanation_not_found(mock_get_explanation, client):
+    mock_get_explanation.return_value = None
+
+    response = client.get(
+        "/explain?season=2025&date=2025-01-01&player=Missing%20Player"
+    )
+
+    assert response.status_code == 404
+    assert response.headers["Cache-Control"] == "no-store"
+    payload = response.get_json()
+    assert payload["date"] == "2025-01-01"
+    assert payload["player"] == "Missing Player"
+    assert "No explanation" in payload["error"]
+
+
+def test_get_explanation_requires_date_and_player(client):
+    response = client.get("/explain?date=2025-04-30")
+    assert response.status_code == 400
+
+    response = client.get("/explain?player=Someone")
+    assert response.status_code == 400
+
+
+def test_get_explanation_rejects_invalid_season(client):
+    response = client.get(
+        "/explain?season=abc&date=2025-04-30&player=Someone"
+    )
+
+    assert response.status_code == 400
+    assert "Season must be a number" in response.get_json()["error"]
 
 
 @patch("scripts.database.get_all")

@@ -19,6 +19,8 @@
     <PlayerList
       :players="players"
       :proba="true"
+      clickable
+      @select="handleSelect"
     />
   </v-list>
 </template>
@@ -27,7 +29,7 @@
 import type { Prediction } from '@/api/mvps.ts';
 import { formatDate } from '@/utils/format';
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     selectedDate: string;
     players: Prediction[];
@@ -39,4 +41,21 @@ withDefaults(
     final: false,
   },
 );
+
+const emit = defineEmits<{
+  explain: [
+    target: { date: string; player: string; probability: number },
+  ];
+}>();
+
+function handleSelect(player: Prediction) {
+  const date = props.selectedDate || props.latestDate;
+  if (!date) return;
+
+  emit('explain', {
+    date,
+    player: player.player,
+    probability: player.probability,
+  });
+}
 </script>

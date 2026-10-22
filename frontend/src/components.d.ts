@@ -13,10 +13,12 @@ declare module 'vue' {
     HistoricList: typeof import('./components/HistoricList/HistoricList.vue')['default']
     MvpChart: typeof import('./components/MvpChart/MvpChart.vue')['default']
     NavBar: typeof import('./components/NavBar/NavBar.vue')['default']
+    PlayerExplanation: typeof import('./components/PlayerExplanation/PlayerExplanation.vue')['default']
     PlayerList: typeof import('./components/PlayerList/PlayerList.vue')['default']
     PredictionsList: typeof import('./components/PredictionsList/PredictionsList.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    ShapForcePlot: typeof import('./components/ShapForcePlot/ShapForcePlot.vue')['default']
     SideBar: typeof import('./components/SideBar/SideBar.vue')['default']
   }
 }

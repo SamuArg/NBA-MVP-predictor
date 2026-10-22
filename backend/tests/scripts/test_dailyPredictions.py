@@ -6,6 +6,7 @@ from scripts.dailyPredictions import (
     get_game_date,
     main,
     make_prediction,
+    make_prediction_with_explanations,
     save_current_season_mvps,
     season_has_started,
     update_mvps,
@@ -119,9 +120,80 @@ def test_save_current_season_mvps(mock_update_mvps):
         mock_update_mvps.assert_called_once_with(2025)
 
 
+def _prediction_frame():
+    return pd.DataFrame(
+        {
+            "Player": ["Shai Gilgeous-Alexander"],
+            "Prediction": [43.382759],
+            "Team": ["OKC"],
+        }
+    )
+
+
+def test_make_prediction_with_explanations():
+    """Predictions and their explanations are returned together."""
+    mock_model = MagicMock()
+    mock_predict_instance = MagicMock()
+    mock_predict_instance.predict.return_value = _prediction_frame()
+    explanations = [
+        {
+            "player": "Shai Gilgeous-Alexander",
+            "team": "OKC",
+            "probability": 43.382759,
+            "baseValue": 0.1,
+            "outputValue": 0.7,
+            "features": [],
+        }
+    ]
+    mock_predict_instance.explain.return_value = explanations
+
+    with patch("scripts.dailyPredictions.Predict", return_value=mock_predict_instance):
+        predictions, result = make_prediction_with_explanations(2025, mock_model)
+
+    assert predictions == [
+        {
+            "player": "Shai Gilgeous-Alexander",
+            "probability": 43.382759,
+            "team": "OKC",
+        }
+    ]
+    assert result == explanations
+    mock_predict_instance.explain.assert_called_once_with(predictions)
+
+
+def test_make_prediction_with_explanations_is_best_effort():
+    """A SHAP failure must not discard the day's predictions."""
+    mock_model = MagicMock()
+    mock_predict_instance = MagicMock()
+    mock_predict_instance.predict.return_value = _prediction_frame()
+    mock_predict_instance.explain.side_effect = RuntimeError("shap failed")
+
+    with patch("scripts.dailyPredictions.Predict", return_value=mock_predict_instance):
+        predictions, result = make_prediction_with_explanations(2025, mock_model)
+
+    assert len(predictions) == 1
+    assert result == []
+
+
+def test_make_prediction_with_explanations_can_raise():
+    """The backfill script needs explanation failures to surface."""
+    mock_model = MagicMock()
+    mock_predict_instance = MagicMock()
+    mock_predict_instance.predict.return_value = _prediction_frame()
+    mock_predict_instance.explain.side_effect = RuntimeError("shap failed")
+
+    with patch("scripts.dailyPredictions.Predict", return_value=mock_predict_instance):
+        with pytest.raises(RuntimeError, match="shap failed"):
+            make_prediction_with_explanations(
+                2025,
+                mock_model,
+                raise_on_explanation_error=True,
+            )
+
+
 @patch("scripts.dailyPredictions.get_game_date", return_value="2025-05-01")
 @patch("scripts.dailyPredictions.season_has_started", return_value=True)
-@patch("scripts.dailyPredictions.make_prediction")
+@patch("scripts.dailyPredictions.make_prediction_with_explanations")
 @patch("scripts.dailyPredictions.save_prediction")
 def test_main(
     mock_save_prediction,
@@ -130,7 +202,8 @@ def test_main(
     mock_game_date,
 ):
     mock_predictions = [{"player": "Player1", "probability": 0.8, "team": "Team1"}]
-    mock_make_prediction.return_value = mock_predictions
+    mock_explanations = [{"player": "Player1", "features": []}]
+    mock_make_prediction.return_value = (mock_predictions, mock_explanations)
 
     with patch("scripts.dailyPredictions.get_current_season", return_value=2025):
         with patch("scripts.dailyPredictions.get_model") as mock_model:
@@ -138,11 +211,16 @@ def test_main(
 
     mock_season_has_started.assert_called_once_with(2025)
     mock_make_prediction.assert_called_once_with(2025, mock_model())
-    mock_save_prediction.assert_called_once_with(mock_predictions, 2025, "2025-05-01")
+    mock_save_prediction.assert_called_once_with(
+        mock_predictions,
+        2025,
+        "2025-05-01",
+        explanations=mock_explanations,
+    )
 
 
 @patch("scripts.dailyPredictions.get_current_season", return_value=2027)
-@patch("scripts.dailyPredictions.make_prediction")
+@patch("scripts.dailyPredictions.make_prediction_with_explanations")
 @patch("scripts.dailyPredictions.save_prediction")
 @patch("scripts.dailyPredictions.season_has_started", return_value=False)
 def test_main_skips_before_the_season_starts(

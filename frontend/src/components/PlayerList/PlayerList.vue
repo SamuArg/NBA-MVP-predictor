@@ -4,6 +4,9 @@
       v-for="(player, index) in players"
       :key="`${player.player}-${index}`"
       class="py-2"
+      :link="clickable"
+      :ripple="clickable"
+      @click="handleSelect(player)"
     >
       <template #prepend>
         <v-avatar
@@ -47,6 +50,13 @@
           contain
           class="ml-3"
         />
+        <v-icon
+          v-if="clickable"
+          icon="mdi-chart-line"
+          size="18"
+          class="ml-2 text-medium-emphasis"
+          title="Explain this prediction"
+        />
       </template>
     </v-list-item>
   </div>
@@ -58,9 +68,19 @@ import { getTeamLogo } from '@/utils/getTeamLogo';
 import { formatPercentage, formatShare } from '@/utils/format';
 import type { Prediction } from '@/api/mvps';
 
-const props = defineProps<{
-  players: Prediction[];
-  proba: boolean;
+const props = withDefaults(
+  defineProps<{
+    players: Prediction[];
+    proba: boolean;
+    clickable?: boolean;
+  }>(),
+  {
+    clickable: false,
+  },
+);
+
+const emit = defineEmits<{
+  select: [player: Prediction];
 }>();
 
 const maxProbability = computed(() =>
@@ -75,5 +95,9 @@ function rankColor(index: number) {
   if (index === 1) return 'grey-lighten-1';
   if (index === 2) return 'orange-darken-3';
   return 'surface-variant';
+}
+
+function handleSelect(player: Prediction) {
+  if (props.clickable) emit('select', player);
 }
 </script>

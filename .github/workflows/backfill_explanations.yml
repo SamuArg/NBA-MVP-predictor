@@ -1,0 +1,47 @@
+name: Backfill SHAP explanations
+
+on:
+  workflow_dispatch:
+    inputs:
+      season:
+        description: "Optional season year to backfill (e.g. 2026; defaults to completed seasons)"
+        required: false
+        default: ""
+      dry_run:
+        description: "Recompute and compare without writing to MongoDB"
+        type: boolean
+        default: false
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.13"
+
+      - name: Install Dependencies
+        run: |
+          cd backend
+          pip install -r requirements-analysis.txt
+
+      - name: Backfill Explanations
+        env:
+          MONGOURI: ${{ secrets.MONGOURI }}
+          SEASON: ${{ inputs.season }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          cd backend
+          args=()
+          if [ -n "$SEASON" ]; then
+            args+=(--season "$SEASON")
+          fi
+          if [ "$DRY_RUN" = "true" ]; then
+            args+=(--dry-run)
+          fi
+          python -m scripts.backfill_explanations "${args[@]}"

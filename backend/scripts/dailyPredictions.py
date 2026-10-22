@@ -10,6 +10,17 @@ from .database import save_mvps, save_prediction
 from .seasons import get_current_season
 
 
+def _build_predictions(season, model, normalize=True):
+    """Run the model and return both the predictor and the top-10 rows."""
+    predict = Predict(season, model)
+    data = predict.predict(normalize=normalize)
+    predictions = [
+        {"player": data['Player'][key], "probability": float(data['Prediction'][key]), "team": data['Team'][key]}
+        for key in data['Player'].keys()]
+    print(predictions)
+    return predict, predictions
+
+
 def make_prediction(season, model, normalize=True):
     """
     Generate MVP predictions for a season.
@@ -22,13 +33,37 @@ def make_prediction(season, model, normalize=True):
     Returns:
         list: Top 10 MVP candidates with predictions
     """
-    predict = Predict(season, model)
-    data = predict.predict(normalize=normalize)
-    predictions = [
-        {"player": data['Player'][key], "probability": float(data['Prediction'][key]), "team": data['Team'][key]}
-        for key in data['Player'].keys()]
-    print(predictions)
+    _, predictions = _build_predictions(season, model, normalize=normalize)
     return predictions
+
+
+def make_prediction_with_explanations(
+    season,
+    model,
+    normalize=True,
+    raise_on_explanation_error=False,
+):
+    """
+    Generate predictions and their SHAP explanations.
+
+    Explanations are best-effort by default so a SHAP failure cannot prevent
+    the day's predictions from being saved.  The backfill script opts into
+    raising because it needs to know whether the computation failed.
+
+    Returns:
+        tuple: ``(predictions, explanations)``
+    """
+    predict, predictions = _build_predictions(season, model, normalize=normalize)
+
+    try:
+        explanations = predict.explain(predictions)
+    except Exception as error:
+        if raise_on_explanation_error:
+            raise
+        print(f"Could not generate SHAP explanations: {error}")
+        explanations = []
+
+    return predictions, explanations
 
 
 def update_mvps(season):
@@ -91,12 +126,19 @@ def main():
         print(f"No games have been played for the {season} season yet. Skipping.")
         return
 
-    predictions = make_prediction(season, get_model())
+    predictions, explanations = make_prediction_with_explanations(
+        season, get_model()
+    )
     if not predictions:
         print(f"No predictions were produced for the {season} season. Skipping.")
         return
 
-    save_prediction(predictions, season, get_game_date())
+    save_prediction(
+        predictions,
+        season,
+        get_game_date(),
+        explanations=explanations,
+    )
 
 
 if __name__ == "__main__":

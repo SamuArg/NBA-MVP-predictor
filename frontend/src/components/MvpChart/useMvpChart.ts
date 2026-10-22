@@ -9,6 +9,12 @@ interface TooltipParams {
   value: number | null;
 }
 
+export interface ChartSelection {
+  date: string;
+  player: string;
+  probability: number;
+}
+
 const AXIS_LABEL_COLOR = '#b8b8b8';
 const SPLIT_LINE_COLOR = 'rgba(255, 255, 255, 0.08)';
 const SERIES_COLORS = [
@@ -74,6 +80,7 @@ export function useMvpChart(
       symbol: 'circle',
       symbolSize: 4,
       connectNulls: true,
+      triggerEvent: true,
       sampling: 'lttb' as const,
       itemStyle: { color: player.color },
       lineStyle: { color: player.color },
@@ -168,11 +175,47 @@ export function useMvpChart(
     return value.length > 0 ? value : null;
   }
 
+  function getSelectionFromEvent(params: unknown): ChartSelection | null {
+    if (typeof params !== 'object' || params === null) return null;
+
+    const event = params as {
+      componentType?: string;
+      dataIndex?: unknown;
+      name?: unknown;
+      seriesName?: unknown;
+      value?: unknown;
+    };
+    if (event.componentType !== 'series') return null;
+
+    const player = String(event.seriesName ?? '');
+    if (!player) return null;
+
+    const dataIndex =
+      typeof event.dataIndex === 'number' ? event.dataIndex : Number.NaN;
+    const entry = Number.isInteger(dataIndex)
+      ? data.value[dataIndex]
+      : undefined;
+    const date = entry?.date ?? String(event.name ?? '');
+    if (!date) return null;
+
+    let probability =
+      typeof event.value === 'number' ? event.value : Number.NaN;
+    if (!Number.isFinite(probability)) {
+      probability =
+        entry?.predictions.find((prediction) => prediction.player === player)
+          ?.probability ?? Number.NaN;
+    }
+    if (!Number.isFinite(probability)) return null;
+
+    return { date, player, probability };
+  }
+
   return {
     showChart,
     chartOptions,
     rangeLabel,
     legendItems: chartPlayers,
     getDateFromEvent,
+    getSelectionFromEvent,
   };
 }

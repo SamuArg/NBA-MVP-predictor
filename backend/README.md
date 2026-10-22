@@ -31,6 +31,46 @@ Missing dates, seasons or rankings return `404` with a JSON body such as:
 { "error": "No predictions available for season 2027.", "season": 2027 }
 ```
 
+### GET /explain
+Get the precomputed SHAP explanation for one player on one date.
+
+Query Parameters:
+- `season` (optional): Season year (YYYY)
+- `date` (required): Prediction date (YYYY-MM-DD)
+- `player` (required): Full player name
+
+The daily prediction job writes these values to MongoDB; the API only reads
+them. New predictions include explanations automatically. The backfill workflow
+can add them for the final stored date of a completed season (or the current
+season's latest date when explicitly requested), and older mid-season dates
+without a stored feature snapshot return `404`.
+
+Response format:
+```json
+{
+  "season": 2026,
+  "date": "2026-04-30",
+  "player": "Shai Gilgeous-Alexander",
+  "team": "OKC",
+  "probability": 23.85,
+  "baseValue": 0.08,
+  "outputValue": 0.71,
+  "features": [
+    {
+      "name": "PTS",
+      "label": "Points / game",
+      "value": 32.0,
+      "displayValue": "32.0",
+      "contribution": 0.3
+    }
+  ]
+}
+```
+
+`probability` is the normalized percentage shown in the ranking. `baseValue`,
+`outputValue` and `contribution` describe the model's raw score, so the
+contributions add up to `outputValue - baseValue`.
+
 ### GET /ranking
 Get MVP voting results.
 
@@ -79,17 +119,24 @@ default.
 - `models/` - PyTorch model definition
 - `scripts/` - Core functionality
   - `Predict.py` - Prediction pipeline
+  - `explain.py` - SHAP explanation generation
   - `Scrap.py` - Data scraping from basketball-reference
   - `dailyPredictions.py` - Daily prediction updates
+  - `backfill_explanations.py` - Explanation backfill for stored seasons
   - `database.py` - MongoDB operations
 - `data/` - Raw and processed data
 - `notebooks/` - Development notebooks
 
 ## Setup
 
-1. Install dependencies:
+1. Install dependencies for the API:
 ```bash
 pip install -r requirements.txt
+```
+
+The daily prediction job, backfill script and test suite also need SHAP:
+```bash
+pip install -r requirements-analysis.txt
 ```
 
 2. Environment variables:
@@ -106,8 +153,11 @@ python wsgi.py
 
 ## Development
 
-- Run tests: `pytest`
+- Run tests: `pytest` (SHAP-specific tests skip when `shap` is not installed)
 - Daily predictions run via GitHub Actions
+- Backfill explanations with `python -m scripts.backfill_explanations`
+  (optionally `--season 2026` or `--dry-run`), or run the
+  **Backfill SHAP explanations** workflow (it has an optional dry-run input)
 - Model is retrained yearly with new season data
 
 ## Deployment
