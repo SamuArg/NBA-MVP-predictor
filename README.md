@@ -11,7 +11,7 @@ the current race. Every season back to 1981 can be explored in the frontend.
 
 - Daily MVP probability predictions for the top 10 candidates
 - Interactive probability progression chart; click a date to see that day's rankings
-- Click a player row or a chart point to see a SHAP explanation of the model's raw score
+- Click a player row or a chart point to see a SHAP explanation of the model's raw score for post-training seasons
 - Home page surfaces official MVP results once voting is available
 - Season browser with official MVP voting shares for comparison
 - Graceful fallback to the latest available season when the new season has not

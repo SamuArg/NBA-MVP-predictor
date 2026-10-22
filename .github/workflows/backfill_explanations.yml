@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       season:
-        description: "Optional season year to backfill (e.g. 2026; defaults to completed seasons)"
+        description: "Optional post-training season year (e.g. 2026; defaults to all eligible completed seasons)"
         required: false
         default: ""
       dry_run:

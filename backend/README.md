@@ -45,6 +45,11 @@ can add them for the final stored date of a completed season (or the current
 season's latest date when explicitly requested), and older mid-season dates
 without a stored feature snapshot return `404`.
 
+Only post-training seasons are eligible for backfilling. The current model is
+trained through 2024; earlier stored rows came from the leave-one-season-out
+training pipeline, so current-model SHAP values for them would be in-sample and
+misleading. Those dates keep the unavailable fallback.
+
 Response format:
 ```json
 {
@@ -157,8 +162,12 @@ python wsgi.py
 - Daily predictions run via GitHub Actions
 - Backfill explanations with `python -m scripts.backfill_explanations`
   (optionally `--season 2026` or `--dry-run`), or run the
-  **Backfill SHAP explanations** workflow (it has an optional dry-run input)
-- Model is retrained yearly with new season data
+  **Backfill SHAP explanations** workflow (it has optional season and dry-run
+  inputs). Only seasons after the current model's training cutoff (2025+) are
+  eligible.
+- Model is retrained yearly with new season data; update
+  `MODEL_TRAINING_LAST_SEASON` in `scripts/backfill_explanations.py` when that
+  cutoff changes.
 
 ## Deployment
 
